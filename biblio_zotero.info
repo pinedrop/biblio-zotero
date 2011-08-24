@@ -1,0 +1,8 @@
+; $Id$
+name = Biblio Zotero Feeds Integration
+description = "Adds one-way synchronisation between Zotero and Biblio"
+core = 6.x
+package = Biblio
+dependencies[] = biblio
+dependencies[] = feeds
+

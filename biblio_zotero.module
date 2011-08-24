@@ -1,0 +1,193 @@
+<?php
+
+/**
+ * Implementation of hook_node_info().
+ */
+function biblio_zotero_node_info() {
+  $items = array(
+    'zotero_feed' => array(
+      'name' => t('Zotero feed'),
+      'module' => 'node',
+      'description' => t('Subscribe to a zotero user or group'),
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'has_body' => '1',
+      'body_label' => t('Body'),
+      'min_word_count' => '0',
+      'help' => '',
+    ),
+  );
+  return $items;
+}
+
+/**
+* Implementation of hook_ctools_plugin_api().
+*/
+function biblio_zotero_ctools_plugin_api($module = '', $api = '') {
+   if ($module == "feeds" && $api == "feeds_importer_default") {
+      // The current API version is 1.
+      return array("version" => 1);
+   }
+}
+
+/**
+ * Implementation of hook_feeds_plugins().
+ */
+function biblio_zotero_feeds_plugins() {
+   $info = array();
+   $info['FeedsZoteroParser'] = array(
+      'name' => 'Zotero Parser',
+      'description' => 'Parses json data from a zotero api call.',
+      'handler' => array(
+         'parent' => 'FeedsSyndicationParser', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
+         'class' => 'FeedsZoteroParser',
+         'file' => 'FeedsZoteroParser.inc',
+         'path' => drupal_get_path('module', 'biblio_zotero'),
+         ),
+      );
+   $info['FeedsZoteroProcessor'] = array(
+      'name' => 'Zotero Processor',
+      'description' => 'Routes known mapped fields to known Biblio fields and leaves the rest to be configured in the UI in the event someone extends the biblio node in cck.',
+      'handler' => array(
+         'parent' => 'FeedsNodeProcessor', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
+         'class' => 'FeedsZoteroProcessor',
+         'file' => 'FeedsZoteroProcessor.inc',
+         'path' => drupal_get_path('module', 'biblio_zotero'),
+         ),
+      );
+   $info['FeedsZoteroFetcher'] = array(
+      'name' => 'Zotero Http Fetcher',
+      'description' => 'Fetches Zotero items from a user or group',
+      'handler' => array(
+         'parent' => 'FeedsHTTPFetcher', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
+         'class' => 'FeedsZoteroFetcher',
+         'file' => 'FeedsZoteroFetcher.inc',
+         'path' => drupal_get_path('module', 'biblio_zotero'),
+         ),
+      );
+   return $info; 
+}
+
+/**
+* Default definition of 'biblio_zotero_importer'
+*/ 
+function biblio_zotero_feeds_importer_default() {
+   $export = array();
+   $feeds_importer = new stdClass;
+   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
+   $feeds_importer->api_version = 1;
+   $feeds_importer->id = 'zotero_feed';
+   $feeds_importer->config = array(
+      'name' => 'Zotero Feed',
+      'description' => 'Import Zotero items.',
+      'fetcher' => array(
+         'plugin_key' => 'FeedsZoteroFetcher',
+         'config' => array(
+            'auto_detect_feeds' => FALSE,
+            'use_pubsubhubbub' => FALSE,
+            'designated_hub' => '',
+            ),
+         ),
+      'parser' => array(
+         'plugin_key' => 'FeedsZoteroParser',
+         'config' => array(),
+         ),
+      'processor' => array(
+         'plugin_key' => 'FeedsZoteroProcessor',
+         'config' => array(
+            'content_type' => 'biblio',
+            'update_existing' => 0,
+            'expire' => '-1',
+            'mappings' => array(
+               0 => array(
+                  'source' => 'title',
+                  'target' => 'title',
+                  'unique' => FALSE,
+                  ),
+               1 => array(
+                  'source' => 'description',
+                  'target' => 'body',
+                  'unique' => FALSE,
+                  ),
+               2 => array(
+                  'source' => 'timestamp',
+                  'target' => 'created',
+                  'unique' => FALSE,
+                  ),
+               3 => array(
+                  'source' => 'url',
+                  'target' => 'url',
+                  'unique' => TRUE,
+                  ),
+               4 => array(
+                  'source' => 'guid',
+                  'target' => 'guid',
+                  'unique' => TRUE,
+                  ),
+               ),
+            'input_format' => 0,
+            'author' => 0,
+            ),
+         ),
+      'content_type' => 'zotero_feed',
+      'update' => 0,
+      'import_period' => '1800',
+      'expire_period' => 3600,
+      'import_on_create' => 1,
+      );
+   
+   $export['biblio_zotero_importer'] = $feeds_importer; 
+   return $export;
+}
+
+/**
+* get all zotero item types and cache the results
+**/
+function get_zotero_item_types($reset = FALSE) {
+   static $types;
+   if (!isset($types) || $reset) {
+      if (!$reset && ($cache = cache_get('biblio_zotero:all_item_types')) && !empty($cache->data)) {
+         $types = unserialize($cache->data);
+      }
+      else {
+         //TODO - un-hardcode this
+         $zotero = new phpZotero('2a67sDv3yumqMtswCREyOJV1'); 
+         $data = json_decode($zotero->getAllItemTypes());
+         $types = array();
+         foreach ( $data as $type ) {
+            $types[$type->itemType] = $type->localized;
+         }
+         cache_set('biblio_zotero:all_item_types', serialize($types), $table = 'cache', CACHE_TEMPORARY);
+      }
+   }
+   return $types;
+}
+
+/**
+* get all zotero item fields
+**/
+function get_zotero_item_fields($reset = FALSE) {
+   static $fields;
+   if (!isset($fields) || $reset) {
+      if (!$reset && ($cache = cache_get('biblio_zotero:all_item_fields')) && !empty($cache->data)) {
+         $fields = unserialize($cache->data);
+      }
+      else {
+         //TODO - un-hardcode this
+         $zotero = new phpZotero('2a67sDv3yumqMtswCREyOJV1'); 
+         $data = json_decode($zotero->getAllItemFields());
+         $fields = array();
+         foreach ( $data as $type ) {
+            $fields[$type->field] = $type->localized;
+         }
+         cache_set('biblio_zotero:all_item_fields', serialize($fields), $table = 'cache', CACHE_TEMPORARY);
+      }
+   }
+   return $fields;
+}
+
+/* function biblio_zotero_nodeapi(&$node, $op) {
+   if ( $node->type =='biblio' && $op == 'presave' ) {
+      dd($node, "node");
+   }
+} */
