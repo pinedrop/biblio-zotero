@@ -127,6 +127,8 @@ function biblio_zotero_feeds_importer_default() {
                ),
             'input_format' => 0,
             'author' => 0,
+            'sync_tags' => FALSE,
+            'tags_vocab_id' => NULL,
             ),
          ),
       'content_type' => 'zotero_feed',

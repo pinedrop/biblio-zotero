@@ -43,6 +43,7 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
          '#default_value' => isset($source_config['api_key']) ? $source_config['api_key'] : '',
          '#maxlength' => NULL,
          );
+      
       $form['source'] = array(
          '#type' => 'hidden',
          '#title' => t('URL'),
@@ -75,9 +76,14 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
          form_set_error($form_key, t('The zotero id must be numeric.'));
       }
       
+      
+      
       $values['source'] = sprintf('https://api.zotero.org/%s/%d/items', $zotType, $values['zotero_id']);
       $values['source'] .= '?content=json';
+      
       // TODO add the api key to the source
+      
+      // TODO add option to fetch from zotero without json for use in non-biblio fields, i.e. the standard processor
       
       // TODO test the accessibility of the API call.
       

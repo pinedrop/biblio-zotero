@@ -21,7 +21,16 @@ module_load_include('inc', 'feeds', 'plugins/FeedsNodeProcessor');
 * This is a modified version of FeedsNodeProcessor
 */
 class FeedsZoteroProcessor extends FeedsNodeProcessor {
-   
+
+  /**
+   * Override parent::configDefaults().
+   */
+  public function configDefaults() {
+     $config = parent::configDefaults();
+     $config['sync_tags'] = false;
+     $config['tags_vocab_id'] = null;
+     return $config;
+  }   
    
    /**
    * Override parent::configForm().
@@ -37,7 +46,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
          '#default_value' => $this->config['content_type'],
          );
       $format_options = array(FILTER_FORMAT_DEFAULT => t('Default format'));
-      $formats = filter_formats();
+      $formats = filter_formats();  
       foreach ($formats as $format) {
          $format_options[$format->format] = $format->name;
       }
@@ -81,6 +90,34 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
             ),
          '#default_value' => $this->config['update_existing'],
          );
+      
+      $form['sync_tags'] = array(
+         '#type' => 'radios',
+         '#title' => t('Sync zotero tags to biblio nodes?'),
+         '#options' => array(1 => t('yes'), 0 => t('no')),
+         '#default_value' => $this->config['sync_tags'],
+         );
+      
+      // get tags vocabs for content type
+      $vocabs = taxonomy_get_vocabularies();
+      $tags_vocabs = array();
+      foreach ( $vocabs as $vocab ) {
+         if ( in_array($this->config['content_type'], $vocab->nodes ) && $vocab->tags ) {
+            $tags_vocabs[$vocab->vid] = $vocab->name;
+         }
+      }
+      $warning = t('Important - to sync tags for this feed, you need at at least one tags taxonomy vocabulary applied to your content type in ') . l(t('taxonomy settings'), 'admin/content/taxonomy');
+      if ( empty($tags_vocabs) ) {
+         $desc = sprintf('<span class=\'warning\'>%s</span>', $warning);
+      }
+      $form['tags_vocab_id'] = array(
+         '#type' => 'select',
+         '#title' => t('Select a taxonomy vocabulary to use for zotero tags.'),
+         '#description' => $desc,
+         '#options' => $tags_vocabs,
+          '#default_value' => $this->config['tags_vocab_id'],
+        );
+      
       return $form;
    }
    
@@ -88,6 +125,13 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    * Override parent::configFormValidate().
    */
    public function configFormValidate(&$values) {
+      
+      if ( ! empty($values['sync_tags']) && !is_numeric($values['tags_vocab_id'])) {
+         
+         $warning = 'Important - to sync tags for this feed, you need at at least one tags taxonomy vocabulary applied to your content type in ' . l(t('taxonomy settings'), 'admin/content/taxonomy');
+         form_set_error('tags_vocab_id', $warning);
+      }
+      
       if ($author = user_load(array('name' => $values['author']))) {
          $values['author'] = $author->uid;
       }
@@ -164,7 +208,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    }
    
    public function process(FeedsImportBatch $batch, FeedsSource $source) {
-            // Add biblio->zotero mappings to config; 
+      // Add biblio->zotero mappings to config; 
       // the config that we set up in the default constructor is gone
       module_load_include('inc', 'biblio_zotero', 'ZoteroBiblioMap');
       $biblioToZoteroFields = ZoteroBiblioMap::getBiblioToZoteroFields();
@@ -177,10 +221,9 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       }
       parent::process($batch, $source);
    }
-
+   
    
    protected function map(FeedsImportBatch $batch, $target_item = NULL) {
-      //dd($batch, "batch");
       
       // map the basics
       parent::map($batch, $target_item);
@@ -196,14 +239,13 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       $target_item->biblio_type = ZoteroBiblioMap::zoteroToBiblioType($itemType);
       
       // map the tags
-      $tagStrings = array();
-      foreach ($tags as $t) {
-         $tagStrings[] = $t->tag; 
+      if ($this->config['sync_tags']) {
+         $tagStrings = array();
+         foreach ($tags as $t) {
+            $tagStrings[] = $t->tag; 
+         }
+         $target_item->taxonomy['tags'][$this->config['tags_vocab_id']] = implode(",", $tagStrings);
       }
-      
-      // TODO un-hardcode
-      $UNHARDCODE_THIS = 2;
-      $target_item->taxonomy['tags'][$UNHARDCODE_THIS] = implode(",", $tagStrings);
       
       // map the creators
       foreach ($creators as $creator) {
@@ -222,17 +264,16 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		   $target_item->og_groups = $feed->og_groups;
 		   $target_item->og_groups_both = $feed->og_groups_both;
 		}
-		
    }
    
-     /**
+   /**
    * Override setTargetElement to operate on a target item that is a node.
    */
-  public function setTargetElement(&$target_node, $target_element, $value) {
-     parent::setTargetElement($target_node, $target_element, $value);
-     $biblioToZoteroFields = ZoteroBiblioMap::getBiblioToZoteroFields();
-     if (in_array($target_element, array_keys($biblioToZoteroFields))) {
-      $target_node->$target_element = $value;
-    }
-  }
+   public function setTargetElement(&$target_node, $target_element, $value) {
+      parent::setTargetElement($target_node, $target_element, $value);
+      $biblioToZoteroFields = ZoteroBiblioMap::getBiblioToZoteroFields();
+      if (in_array($target_element, array_keys($biblioToZoteroFields))) {
+         $target_node->$target_element = $value;
+      }
+   }
 }
