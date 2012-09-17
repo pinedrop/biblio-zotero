@@ -1,15 +1,15 @@
 <?php
 /**
- *   Zotero API Client
- */
+*   Zotero API Client
+*/
 
 /**
- * Zotero object with mappings to Biblio nodes. 
- */
+* Zotero object with mappings to Biblio nodes. 
+*/
 class ZoteroBiblioMap {
 	/**
-	 * Contributor types
-	 */
+	* Contributor types
+	*/
 	const BIBLIO_AUTHOR = 1;
 	const BIBLIO_SECONDARY_AUTHOR = 2;
 	const BIBLIO_TERTIARY_AUTHOR = 3;
@@ -28,10 +28,10 @@ class ZoteroBiblioMap {
 	const BIBLIO_INTERNATIONAL_AUTHOR = 20;
 	const BIBLIO_RECIPIENT = 21;
 	const BIBLIO_ADVISOR = 22;
-
+	
 	/**
-	 * Document types
-	 */
+	* Document types
+	*/
 	const BIBLIO_BOOK = 100;
 	const BIBLIO_BOOK_CHAPTER = 101;
 	const BIBLIO_JOURNAL_ARTICLE = 102;
@@ -63,23 +63,23 @@ class ZoteroBiblioMap {
 	const BIBLIO_LEGAL_RULING = 128;
 	const BIBLIO_MISCELLANEOUS = 129;
 	const BIBLIO_MISCELLANEOUS_SECTION = 130;
-
+	
 	public static function getBiblioToZoteroFields() {
 	   return ZoteroBiblioMap::map();
 	}
 	/**
-	 * Returns a map biblio keys => zotero keys
-	 *
-	 * @param boolean $flip
-	 * 	set true to get zotero => biblio
-	 * @return array
-	 */
+	* Returns a map biblio keys => zotero keys
+	*
+	* @param boolean $flip
+	* 	set true to get zotero => biblio
+	* @return array
+	*/
 	private static function map($flip = false) {
 		// @see notMapped() for properties I haven't mapped so far
-
+		
 		$biblioToZoteroFields = array_filter(array(
-			'biblio_abst_e' => 'abstractNote',
-			'biblio_abst_f' => null,
+			'biblio_abst_e' => 'description',
+			'biblio_abst_f' => '',
 			'biblio_accession_number' => null,
 			'biblio_access_date' => 'accessDate',
 			'biblio_alternate_title' => null,
@@ -105,7 +105,7 @@ class ZoteroBiblioMap {
 			'biblio_keywords' => null, // was set in medeley
 			'biblio_label' => 'label',
 			'biblio_lang' => 'language',
-			'biblio_zotero_doc_id' => 'documentNumber',
+			/* 'biblio_zotero_doc_id' => 'documentNumber', */
 			'biblio_notes' => null, // was set in mendeley
 			'biblio_number' => null,
 			'biblio_number_of_volumes' => null,
@@ -136,32 +136,32 @@ class ZoteroBiblioMap {
 			'biblio_year' => 'date',
 			'title' => 'title',
 			//'taxonomy' => 'tags', // proprietary addition to add taxonomy terms to a node
-		));
-
+			));
+		
 		if($flip) {
 			$biblioToZoteroFields = array_flip($biblioToZoteroFields);
 		}
-
+		
 		return $biblioToZoteroFields;
 	}
-
+	
 	/**
-	 * Convenience method for @see ZoteroBiblioMap::biblioToZoteroType
-	 */
+	* Convenience method for @see ZoteroBiblioMap::biblioToZoteroType
+	*/
 	public static function zoteroToBiblioType($zoteroType) {
 		return self::biblioToZoteroType($zoteroType, true);
 	}
-
+	
 	/**
-	 * Maps biblio publication types to zotero publication types.
-	 *
-	 * Not all types of biblio are supported by the zotero api
-	 *
-	 * @param mixed
-	 * 	biblio type id if flip is false, else Zotero type string
-	 * @return int
-	 * 	biblio/zotero type id/string
-	 */
+	* Maps biblio publication types to zotero publication types.
+	*
+	* Not all types of biblio are supported by the zotero api
+	*
+	* @param mixed
+	* 	biblio type id if flip is false, else Zotero type string
+	* @return int
+	* 	biblio/zotero type id/string
+	*/
 	public static function biblioToZoteroType($type, $flip = false) {
 		$biblioToZotero = array(
 			// biblio types in the zotero api
@@ -216,16 +216,78 @@ class ZoteroBiblioMap {
 			// self::??? => presentation		Presentation
 			// self::??? => radioBroadcast		Radio Broadcast
 			// self::??? => videoRecording		Video Recording
-		);
-
+			);
+		
 		if($flip) {
 			$biblioToZotero = array_flip($biblioToZotero);
 		}
-
+		
 		if(isset($biblioToZotero[$type])) {
 			return $biblioToZotero[$type];
 		} else {
 			return ($flip ? self::BIBLIO_MISCELLANEOUS : $biblioToZotero[self::BIBLIO_MISCELLANEOUS]);
 		}
 	}
+	
+   
+	/**
+	* list all biblio field names
+   *	FROM MySql Db:  DESCRIBE biblio_fields;
+   **/
+   public static function getAllBiblioFieldNames() {
+      return array(
+         'biblio_authors',
+         'biblio_secondary_authors',
+         'biblio_tertiary_authors',
+         'biblio_subsidiary_authors',
+         'biblio_corp_authors',
+         'biblio_secondary_title',
+         'biblio_tertiary_title',
+         'biblio_accession_number',
+         'biblio_isbn',
+         'biblio_call_number',
+         'biblio_other_number',
+         'biblio_other_author_affiliations',
+         'biblio_publisher',
+         'biblio_place_published',
+         'biblio_year',
+         'biblio_edition',
+         'biblio_volume',
+         'biblio_number',
+         'biblio_pages',
+         'biblio_date',
+         'biblio_lang',
+         'biblio_abst_e',
+         'biblio_abst_f',
+         'biblio_keywords',
+         'biblio_type_of_work',
+         'biblio_url',
+         'biblio_notes',
+         'biblio_issue',
+         'biblio_research_notes',
+         'biblio_custom1',
+         'biblio_custom2',
+         'biblio_custom3',
+         'biblio_custom4',
+         'biblio_custom5',
+         'biblio_custom6',
+         'biblio_custom7',
+         'biblio_number_of_volumes',
+         'biblio_short_title',
+         'biblio_alternate_title',
+         'biblio_translated_title',
+         'biblio_original_publication',
+         'biblio_reprint_edition',
+         'biblio_section',
+         'biblio_citekey',
+         'biblio_coins',
+         'biblio_issn',
+         'biblio_doi',
+         'biblio_auth_address',
+         'biblio_remote_db_name',
+         'biblio_remote_db_provider',
+         'biblio_label',
+         'biblio_access_date',
+         'biblio_refereed',);
+   }
 }
