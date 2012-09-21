@@ -67,6 +67,9 @@ class ZoteroBiblioMap {
 	public static function getBiblioToZoteroFields() {
 	   return ZoteroBiblioMap::map();
 	}
+	public static function getZoteroToBiblioFields() {
+	   return ZoteroBiblioMap::map($flip = TRUE);
+	}
 	/**
 	* Returns a map biblio keys => zotero keys
 	*

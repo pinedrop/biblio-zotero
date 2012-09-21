@@ -49,7 +49,7 @@ function biblio_zotero_feeds_plugins() {
    $info = array();
    $info['FeedsZoteroParser'] = array(
       'name' => 'Zotero Parser',
-      'description' => 'Parses json data from a zotero api call.',
+      'description' => 'Parses json data from zotero.',
       'handler' => array(
          'parent' => 'FeedsSyndicationParser', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
          'class' => 'FeedsZoteroParser',
@@ -59,7 +59,7 @@ function biblio_zotero_feeds_plugins() {
       );
    $info['FeedsZoteroProcessor'] = array(
       'name' => 'Zotero Processor',
-      'description' => 'Routes known mapped fields to known Biblio fields and leaves the rest to be configured in the UI in the event someone extends the biblio node in cck.',
+      'description' => 'Routes known mapped fields to known Biblio fields and leaves the rest to be configured in the feeds UI.',
       'handler' => array(
          'parent' => 'FeedsNodeProcessor', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
          'class' => 'FeedsZoteroProcessor',
@@ -69,7 +69,7 @@ function biblio_zotero_feeds_plugins() {
       );
    $info['FeedsZoteroFetcher'] = array(
       'name' => 'Zotero Http Fetcher',
-      'description' => 'Fetches Zotero items from a user or group',
+      'description' => 'Fetches user and group libraries from Zotero.org',
       'handler' => array(
          'parent' => 'FeedsHTTPFetcher', // A plugin needs to derive either directly or indirectly from FeedsFetcher, FeedsParser or FeedsProcessor.
          'class' => 'FeedsZoteroFetcher',
@@ -110,154 +110,7 @@ function biblio_zotero_feeds_importer_default() {
             'content_type' => 'biblio',
             'update_existing' => 0,
             'expire' => '-1',
-            'mappings' => array(
-               array(
-                  'source' => 'title',
-                  'target' => 'title',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'description',
-                  'target' => 'body',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'timestamp',
-                  'target' => 'created',
-                  'unique' => FALSE,
-                  ),
-               /* array(
-                  'source' => 'url',
-                  'target' => 'url',
-                  'unique' => TRUE,
-                  ), */
-               array(
-                  'source' => 'guid',
-                  'target' => 'guid',
-                  'unique' => TRUE,
-                  ),
-               array(
-                  'source' => 'description',
-                  'target' => 'biblio_abst_e',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'accessDate',
-                  'target' => 'biblio_access_date',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'callNumber',
-                  'target' => 'biblio_call_number',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'DOI',
-                  'target' => 'biblio_doi',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'edition',
-                  'target' => 'biblio_edition',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'ISBN',
-                  'target' => 'biblio_isbn',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'ISSN',
-                  'target' => 'biblio_issn',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'issue',
-                  'target' => 'biblio_issue',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'label',
-                  'target' => 'biblio_label',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'language',
-                  'target' => 'biblio_lang',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'numberOfVolumes',
-                  'target' => 'biblio_number_of_volumes',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'numPages',
-                  'target' => 'biblio_pages',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'shortTitle',
-                  'target' => 'biblio_short_title',
-                  'unique' => FALSE,
-                  ),
-               
-               /* array(
-                  'source' => 'documentNumber',
-                  'target' => 'biblio_zotero_doc_id',
-                  'unique' => FALSE,
-                  ), */
-               array(
-                  'source' => 'note',
-                  'target' => 'biblio_notes',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'pages',
-                  'target' => 'biblio_pages',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'place',
-                  'target' => 'biblio_place_published',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'publisher',
-                  'target' => 'biblio_publisher',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'series',
-                  'target' => 'biblio_secondary_title',
-                  'unique' => FALSE,
-                  ),
-               array(
-                  'source' => 'seriesNumber',
-                  'target' => 'biblio_number',
-                  'unique' => FALSE,
-                  ),
-               /* array(
-                  'source' => 'type',
-                  'target' => 'biblio_type',
-                  'unique' => FALSE,
-                  ), // needs callback $this->typeToBiblio() */
-                  array(
-                     'source' => 'url',
-                     'target' => 'biblio_url',
-                     'unique' => FALSE,
-                     ),
-                  array(
-                     'source' => 'volume',
-                     'target' => 'biblio_volume',
-                     'unique' => FALSE,
-                     ),
-                  array(
-                     'source' => 'date',
-                     'target' => 'biblio_year',
-                     'unique' => FALSE,
-                     ),
-                  ),
+            'mappings' => biblio_zotero_get_default_mappings(),
             'input_format' => 0,
             'author' => 0,
             'sync_tags' => FALSE,
@@ -275,74 +128,15 @@ function biblio_zotero_feeds_importer_default() {
    return $export;
 }
 
-/**
-* get all zotero item types and cache the results
-**/
-/* function get_zotero_item_types($reset = FALSE) {
-   static $types;
-   if (!isset($types) || $reset) {
-      if (!$reset && ($cache = cache_get('biblio_zotero:all_item_types')) && !empty($cache->data)) {
-         $types = unserialize($cache->data);
-      }
-      else {
-         //TODO - un-hardcode this
-         $zotero = new phpZotero('2a67sDv3yumqMtswCREyOJV1'); 
-         $data = json_decode($zotero->getAllItemTypes());
-         $types = array();
-         foreach ( $data as $type ) {
-            $types[$type->itemType] = $type->localized;
-         }
-         cache_set('biblio_zotero:all_item_types', serialize($types), $table = 'cache', CACHE_TEMPORARY);
-      }
-   }
-   return $types;
-} */
-
-/**
-* get all zotero item fields
-**/
-/* function get_zotero_item_fields($reset = FALSE) {
-   static $fields;
-   if (!isset($fields) || $reset) {
-      if (!$reset && ($cache = cache_get('biblio_zotero:all_item_fields')) && !empty($cache->data)) {
-         $fields = unserialize($cache->data);
-      }
-      else {
-         //TODO - un-hardcode this
-         $zotero = new phpZotero('2a67sDv3yumqMtswCREyOJV1'); 
-         $data = json_decode($zotero->getAllItemFields());
-         $fields = array();
-         foreach ( $data as $type ) {
-            $fields[$type->field] = $type->localized;
-         }
-         cache_set('biblio_zotero:all_item_fields', serialize($fields), $table = 'cache', CACHE_TEMPORARY);
-      }
-   }
-   return $fields;
-}
- */
 function biblio_zotero_node_presave($node) {
-   dpm($node, "node@hook_node_presave");
+   // dpm($node, "node@hook_node_presave");
    // dpm(debug_backtrace(), "debug backtrace");
 }
 
 /**
-* A callback specified in FeedsZoteroProcessor getMappingTargets()
-**/
-/* function biblio_zotero_set_biblio_field($source, $entity, $target, $value) {
-   dpm($source, "source");
-   dpm($entity, "entity");
-   dpm($target, "target");
-   dpm($value, "value");
-  $entity->{$target}  = $value;
-}
- */
-/**
 * http://drupalcontrib.org/api/drupal/contributions%21feeds%21feeds.api.php/function/hook_feeds_processor_targets_alter/7
 **/
-function biblio_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
-   dpm($targets, "targets");
-   
+function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
 }
 
 /**
@@ -350,4 +144,61 @@ function biblio_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_n
 **/
 function biblio_zotero_feeds_parser_sources_alter(&$sources, $content_type) {
 }
+
+function biblio_zotero_get_default_mappings() {
+   module_load_include('inc', 'biblio_zotero', 'zotero');
+   $all_mappings = array();
+   $itemTypesStructure = array_keys(Zotero::getItemTypeStructure());
+   foreach ($itemTypesStructure as $itemType) {
+      if ( in_array($itemType, array('note', 'attachment')) ) {
+         continue;
+      }
+      $filename  = "mappings/" . $itemType . ".mapping";
+      module_load_include('inc', 'biblio_zotero', $filename);
+      $function_name = "biblio_zotero_get_field_mappings__$itemType";
+      $item_type_mappings = call_user_func($function_name);
+      biblio_zotero_remove_empty_targets($item_type_mappings);
+      $all_mappings = array_merge($all_mappings, $item_type_mappings);      
+   }
+   $other_mappings = array( 
+      array(
+         'source' => 'guid',
+         'target' => 'guid',
+         'unique' => TRUE,
+         ),
+      array(
+         'source' => 'title',
+         'target' => 'title',
+         'unique' => FALSE,
+         ),
+      array(
+         'source' => 'timestamp',
+         'target' => 'created',
+         'unique' => FALSE,
+         ),
+      array(
+         'source' => 'note',
+         'target' => 'biblio_notes',
+         'unique' => FALSE,
+         ),
+      /** @TODO  UNCOMMENT WHEN notes are properly mapped
+      array(
+         'source' => 'notes',
+         'target' => 'biblio_notes',
+         'unique' => FALSE,
+         ), */
+      );
+   $all_mappings = array_merge($other_mappings, $all_mappings);      
+   return $all_mappings;
+}
+
+function biblio_zotero_remove_empty_targets(&$mappings) {
+   foreach ($mappings as $idx => $mapping) {
+      if ( empty( $mapping['target']) ) {
+         unset($mappings[$idx]); 
+      }
+   }
+}
+
+
 
