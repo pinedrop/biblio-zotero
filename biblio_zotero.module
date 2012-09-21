@@ -129,14 +129,24 @@ function biblio_zotero_feeds_importer_default() {
 }
 
 function biblio_zotero_node_presave($node) {
-   // dpm($node, "node@hook_node_presave");
-   // dpm(debug_backtrace(), "debug backtrace");
+   dpm($node, "node@hook_node_presave");
 }
 
 /**
 * http://drupalcontrib.org/api/drupal/contributions%21feeds%21feeds.api.php/function/hook_feeds_processor_targets_alter/7
 **/
 function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+   foreach ($targets as $key => $target) {
+      if (   strpos( $key, 'biblio_') >= 0 && ! in_array($key, array('biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
+         $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';  
+      }
+   }
+   $targets['biblio_contributor']['name'] = t('Biblio - Contributor (primary author)'); //remove the singular added by biblio.feeds.inc to avoid confusion
+    $targets['biblio_contributors'] = array(
+      'name' => t('Biblio - Contributors (for zotero creators)'),
+      'description' => t('Map zotero creator types to biblio author types.'),
+      'callback' => 'biblio_zotero_feeds_set__contrib_target',
+    );
 }
 
 /**
@@ -181,12 +191,17 @@ function biblio_zotero_get_default_mappings() {
          'target' => 'biblio_notes',
          'unique' => FALSE,
          ),
+      array(
+         'source' => 'creators',
+         'target' => 'biblio_contributors',
+         'unique' => FALSE,
+         ),
       /** @TODO  UNCOMMENT WHEN notes are properly mapped
       array(
-         'source' => 'notes',
-         'target' => 'biblio_notes',
-         'unique' => FALSE,
-         ), */
+      'source' => 'notes',
+      'target' => 'biblio_notes',
+      'unique' => FALSE,
+      ), */
       );
    $all_mappings = array_merge($other_mappings, $all_mappings);      
    return $all_mappings;
@@ -200,5 +215,89 @@ function biblio_zotero_remove_empty_targets(&$mappings) {
    }
 }
 
+function biblio_zotero_feeds_mapping_source_creators($source, FeedsParserResult $result, $key) {
+   $item = $result->currentItem();
+   return my_source_parse_images($item['creators']);
+}
 
+function biblio_zotero_feeds_set__contrib_target($source, $entity, $target, $value) {
+   if ( !empty($value) ){
+      foreach ($value as $creator) {
+         $bib_contrib = getBiblioAuthorTypeFromZoteroCreatorType( $creator->creatorType );
+         $entity->biblio_contributors[] =  array(
+            'name' => $creator->firstName . " " . $creator->lastName,
+            'auth_category' => 1,
+            'auth_type' => $bib_contrib['auth_type'],
+            );
+      }
+   }
+}
 
+function biblio_zotero_feeds_set__simple_target($source, $entity, $target, $value) {
+  if (isset($value) && !empty($value)) {
+    $entity->$target = $value;
+    if(in_array($target, array('biblio_notes', 'biblio_abst_e'))) {
+      $entity->biblio_formats[$target] = 'full_html';
+    }
+  }
+}
+
+/**
+* Map zotero creators to biblio author types and categories
+* @TODO in a separate module, add custom contributor types to the biblio author types table and configure them here.
+* Biblio default author categories and types
+* CATEGORIES
+*  1	Author	
+*  2	Secondary Author	
+*  3	Tertiary Author	
+*  4	Subsidiary Author	
+*  5	Corporate Author	
+* TYPES
+*  10	Series Editor
+*  11	Performers
+*  12	Sponsor
+*  13	Translator
+*  14	Editor
+*  15	Counsel
+*  16	Series Director
+*  17	Producer
+*  18	Department
+*  19	Issuing Organization
+*  20	International Author
+*  21	Recipient
+*  22	Advisor
+*/
+function getBiblioAuthorTypeFromZoteroCreatorType( $creatorType ) {
+   $zotCreator2BibAuthType = array(
+      'editor' => array('desc' => 'Editor', 'auth_category' => 14, 'auth_type' => 14), 
+      'seriesEditor' => array('desc' => 'Series Editor', 'auth_category' => 10, 'auth_type' => 10),
+      'translator' => array('desc' => 'Translator', 'auth_category' => 13, 'auth_type' => 13),
+      'counsel' => array('desc' => 'Counsel', 'auth_category' => 15, 'auth_type' => 15),
+      'recipient' => array('desc' => 'Recipient', 'auth_category' => 21, 'auth_type' => 21),
+      'producer' => array('desc' => 'Producer', 'auth_category' => 17, 'auth_type' => 17),
+      'artist' => array('desc' => 'Artist', 'auth_category' => 1, 'auth_type' => 1),
+      'contributor' => array('desc' => 'Contributor', 'auth_category' => 1, 'auth_type' => 1),
+      'performer' => array('desc' => 'Performer', 'auth_category' => 1, 'auth_type' => 1),
+      'composer' => array('desc' => 'Composer', 'auth_category' => 1, 'auth_type' => 1),
+      'wordsBy' => array('desc' => 'Words By', 'auth_category' => 1, 'auth_type' => 1),
+      'sponsor' => array('desc' => 'Sponsor', 'auth_category' => 1, 'auth_type' => 1),
+      'cosponsor' => array('desc' => 'Cosponsor', 'auth_category' => 1, 'auth_type' => 1),
+      'author' => array('desc' => 'Author', 'auth_category' => 1, 'auth_type' => 1),
+      'commenter' => array('desc' => 'Commenter', 'auth_category' => 1, 'auth_type' => 1),
+      'bookAuthor' => array('desc' => 'Book Author', 'auth_category' => 1, 'auth_type' => 1),
+      'programmer' => array('desc' => 'Programmer', 'auth_category' => 1, 'auth_type' => 1),
+      'reviewedAuthor' => array('desc' => 'Reviewed Author', 'auth_category' => 1, 'auth_type' => 1),
+      'director' => array('desc' => 'Director', 'auth_category' => 1, 'auth_type' => 1),
+      'scriptwriter' => array('desc' => 'Scriptwriter', 'auth_category' => 1, 'auth_type' => 1),
+      'interviewee' => array('desc' => 'Interview With', 'auth_category' => 1, 'auth_type' => 1),
+      'interviewer' => array('desc' => 'Interviewer', 'auth_category' => 1, 'auth_type' => 1),
+      'cartographer' => array('desc' => 'Cartographer', 'auth_category' => 1, 'auth_type' => 1),
+      'inventor' => array('desc' => 'Inventor', 'auth_category' => 1, 'auth_type' => 1),
+      'attorneyAgent' => array('desc' => 'Attorney/Agent', 'auth_category' => 1, 'auth_type' => 1),
+      'podcaster' => array('desc' => 'Podcaster', 'auth_category' => 1, 'auth_type' => 1),
+      'guest' => array('desc' => 'Guest', 'auth_category' => 1, 'auth_type' => 1),
+      'presenter' => array('desc' => 'Presenter', 'auth_category' => 1, 'auth_type' => 1),
+      'castMember' => array('desc' => 'Cast Member', 'auth_category' => 1, 'auth_type' => 1),
+      );
+   return $zotCreator2BibAuthType[$creatorType];
+}

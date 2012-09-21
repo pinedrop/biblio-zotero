@@ -58,12 +58,12 @@ function biblio_zotero_get_field_mappings__book() {
          ),
       array(
          'source' => 'book:numberOfVolumes',
-         'target' => '',
+         'target' => 'biblio_number_of_volumes',
          'unique' => FALSE,
          ),
       array(
          'source' => 'book:numPages',
-         'target' => '',
+         'target' => 'biblio_pages',
          'unique' => FALSE,
          ),
       array(
@@ -83,17 +83,17 @@ function biblio_zotero_get_field_mappings__book() {
          ),
       array(
          'source' => 'book:series',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'book:seriesNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
          'source' => 'book:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

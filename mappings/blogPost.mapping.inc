@@ -38,7 +38,7 @@ function biblio_zotero_get_field_mappings__blogPost() {
          ),
       array(
          'source' => 'blogPost:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

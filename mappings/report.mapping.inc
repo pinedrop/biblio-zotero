@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__report() {
          ),
       array(
          'source' => 'report:reportNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -77,13 +77,13 @@ function biblio_zotero_get_field_mappings__report() {
          'unique' => FALSE,
          ),
       array(
-         'source' => 'report:seriesTitle',
-         'target' => '',
+         'source' => 'report:series',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'report:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

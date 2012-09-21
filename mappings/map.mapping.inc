@@ -82,13 +82,13 @@ function biblio_zotero_get_field_mappings__map() {
          'unique' => FALSE,
          ),
       array(
-         'source' => 'map:seriesTitle',
-         'target' => '',
+         'source' => 'map:series',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'map:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

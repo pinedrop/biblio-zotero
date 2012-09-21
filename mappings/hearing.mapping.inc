@@ -23,7 +23,7 @@ function biblio_zotero_get_field_mappings__hearing() {
          ),
       array(
          'source' => 'hearing:documentNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -48,7 +48,7 @@ function biblio_zotero_get_field_mappings__hearing() {
          ),
       array(
          'source' => 'hearing:numberOfVolumes',
-         'target' => '',
+         'target' => 'biblio_number_of_volumes',
          'unique' => FALSE,
          ),
       array(
@@ -78,7 +78,7 @@ function biblio_zotero_get_field_mappings__hearing() {
          ),
       array(
          'source' => 'hearing:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

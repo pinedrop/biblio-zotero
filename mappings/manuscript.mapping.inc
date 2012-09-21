@@ -53,7 +53,7 @@ function biblio_zotero_get_field_mappings__manuscript() {
          ),
       array(
          'source' => 'manuscript:numPages',
-         'target' => '',
+         'target' => 'biblio_pages',
          'unique' => FALSE,
          ),
       array(
@@ -68,7 +68,7 @@ function biblio_zotero_get_field_mappings__manuscript() {
          ),
       array(
          'source' => 'manuscript:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

@@ -88,12 +88,12 @@ function biblio_zotero_get_field_mappings__conferencePaper() {
          ),
       array(
          'source' => 'conferencePaper:series',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'conferencePaper:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

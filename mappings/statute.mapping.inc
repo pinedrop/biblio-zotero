@@ -43,7 +43,7 @@ function biblio_zotero_get_field_mappings__statute() {
          ),
       array(
          'source' => 'statute:nameOfAct',
-         'target' => '',
+         'target' => 'title',
          'unique' => FALSE,
          ),
       array(
@@ -53,7 +53,7 @@ function biblio_zotero_get_field_mappings__statute() {
          ),
       array(
          'source' => 'statute:publicLawNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -73,7 +73,7 @@ function biblio_zotero_get_field_mappings__statute() {
          ),
       array(
          'source' => 'statute:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

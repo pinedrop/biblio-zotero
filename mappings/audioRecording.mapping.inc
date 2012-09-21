@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__audioRecording() {
          ),
       array(
          'source' => 'audioRecording:numberOfVolumes',
-         'target' => '',
+         'target' => 'biblio_number_of_volumes',
          'unique' => FALSE,
          ),
       array(
@@ -82,13 +82,13 @@ function biblio_zotero_get_field_mappings__audioRecording() {
          'unique' => FALSE,
          ),
       array(
-         'source' => 'audioRecording:seriesTitle',
-         'target' => '',
+         'source' => 'audioRecording:series',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'audioRecording:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

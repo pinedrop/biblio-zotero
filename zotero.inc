@@ -719,24 +719,24 @@ class Zotero {
    * @TODO send locale to zotero api
    **/
    static function getItemTypeStructure($refresh = FALSE ) {
-      $type_fields = &drupal_static(__FUNCTION__);
-      if (! isset ($type_fields) ) {
+      $type_structure = &drupal_static(__FUNCTION__);
+      if (! isset ($type_structure) ) {
          $cache = cache_get('biblio_zotero__item_type_field_data');
          if ( $cache && ! $refresh ) {
-            $type_fields = $cache->data;
+            $type_structure = $cache->data;
          }
          else {
-            $type_fields = array();
+            $type_structure = array();
             $types = self::_getAllItemTypes();
             foreach ( $types  as $item_type) {
                $item_type->fields = self::_getItemTypeFields($item_type);
                $item_type->creators = self::_getItemTypeCreators($item_type);
-               $type_fields[$item_type->itemType] = $item_type;
+               $type_structure[$item_type->itemType] = $item_type;
             }
-            cache_set('biblio_zotero__item_type_field_data', $type_fields, 'cache');
+            cache_set('biblio_zotero__item_type_field_data', $type_structure, 'cache');
          }
       }
-      return $type_fields;
+      return $type_structure;
    }
    
    /**

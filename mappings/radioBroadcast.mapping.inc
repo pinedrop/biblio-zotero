@@ -38,7 +38,7 @@ function biblio_zotero_get_field_mappings__radioBroadcast() {
          ),
       array(
          'source' => 'radioBroadcast:episodeNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -68,7 +68,7 @@ function biblio_zotero_get_field_mappings__radioBroadcast() {
          ),
       array(
          'source' => 'radioBroadcast:programTitle',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
@@ -83,7 +83,7 @@ function biblio_zotero_get_field_mappings__radioBroadcast() {
          ),
       array(
          'source' => 'radioBroadcast:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

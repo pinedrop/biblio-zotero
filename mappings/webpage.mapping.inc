@@ -33,7 +33,7 @@ function biblio_zotero_get_field_mappings__webpage() {
          ),
       array(
          'source' => 'webpage:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(
@@ -53,7 +53,7 @@ function biblio_zotero_get_field_mappings__webpage() {
          ),
       array(
          'source' => 'webpage:websiteType',
-         'target' => '',
+         'target' => 'biblio_type_of_work',
          'unique' => FALSE,
          ),
       );

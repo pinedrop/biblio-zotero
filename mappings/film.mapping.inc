@@ -68,7 +68,7 @@ function biblio_zotero_get_field_mappings__film() {
          ),
       array(
          'source' => 'film:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

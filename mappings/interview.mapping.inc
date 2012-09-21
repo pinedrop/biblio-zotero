@@ -58,7 +58,7 @@ function biblio_zotero_get_field_mappings__interview() {
          ),
       array(
          'source' => 'interview:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

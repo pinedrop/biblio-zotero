@@ -45,7 +45,6 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
       feeds_include_library('common_syndication_parser.inc', 'common_syndication_parser');
       
       $feed_raw_xml = $fetcher_result->getRaw();
-      //dpm($feed_raw_xml, "feed_raw_xml");
       $feed_simple_xml = simplexml_load_string($feed_raw_xml);
       $namespaces = $feed_simple_xml->getNameSpaces(true);
       
@@ -87,7 +86,6 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
       module_load_include('inc', 'biblio_zotero', 'zotero');
       $refresh = $this->config['refresh_zotero_item_type_fields'];
       $zoteroItemStructure = Zotero::getItemTypeStructure($refresh);
-         dd($zoteroItemStructure, "zoteroItemStructure");
       $sources = array();
       foreach ( $zoteroItemStructure as  $key => $zotero_type ) {
          $item_type = $key;
@@ -99,16 +97,12 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
                );
          }
       }
-      foreach ( $zoteroItemCreators as  $key => $zotero_type ) {
-         $item_type = $key;
-         $item_type_label = $zotero_type->localized;
-         foreach ( $zotero_type->fields as $key => $field) {       
-            $source = "$item_type:$key";
-            $sources[$source] = array(
-               'name' => t("Zotero - $item_type_label - $field->localized"),
-               );
-         }
-      }
+      $sources['creators'] = array(
+         'name' => t("Zotero - Creators"),
+         'description' => t("Zotero creators vary by item type and the mapping is determined in a callback function provided in biblio_zotero.module"),
+         'callback' => 'biblio_zotero_feeds_source_creators',
+         );
+
 
       $sources += parent::getMappingSources();
       return $sources;
@@ -129,16 +123,18 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
          }
          
          $xml_str = file_get_contents($child_service_url); /** @TODO use authentication if in Fetcher **/ 
+         
          $xml = simplexml_load_string($xml_str);
          $namespaces = $xml->getNameSpaces(true);
          
          foreach ( $xml->entry as $entry ) {
-            $zapi = $entry->children($namespaces['zapi']); 
             $child = json_decode( (string) $entry->content );
+            $child->author = (string)$entry->author->name;
+            $zapi = $entry->children($namespaces['zapi']); 
             $child->key = (string)$zapi->key;
             $child->itemType = (string)$zapi->itemType;
-            $child->author = (string)$zapi->author->name;
             // for this to work, go to admin/config/content/biblio/fields and in Common fields set biblio_notes to common
+            
             switch ( $child->itemType ) {
             case 'note':
                $note = $child->note . PHP_EOL . " - " . $child->author;

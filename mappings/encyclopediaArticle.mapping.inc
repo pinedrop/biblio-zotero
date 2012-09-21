@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__encyclopediaArticle() {
          ),
       array(
          'source' => 'encyclopediaArticle:numberOfVolumes',
-         'target' => '',
+         'target' => 'biblio_number_of_volumes',
          'unique' => FALSE,
          ),
       array(
@@ -88,17 +88,17 @@ function biblio_zotero_get_field_mappings__encyclopediaArticle() {
          ),
       array(
          'source' => 'encyclopediaArticle:series',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'encyclopediaArticle:seriesNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
          'source' => 'encyclopediaArticle:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

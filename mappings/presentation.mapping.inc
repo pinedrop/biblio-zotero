@@ -48,7 +48,7 @@ function biblio_zotero_get_field_mappings__presentation() {
          ),
       array(
          'source' => 'presentation:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

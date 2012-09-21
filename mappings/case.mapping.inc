@@ -13,7 +13,7 @@ function biblio_zotero_get_field_mappings__case() {
          ),
       array(
          'source' => 'case:caseName',
-         'target' => '',
+         'target' => 'title',
          'unique' => FALSE,
          ),
       array(
@@ -28,7 +28,7 @@ function biblio_zotero_get_field_mappings__case() {
          ),
       array(
          'source' => 'case:docketNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -68,7 +68,7 @@ function biblio_zotero_get_field_mappings__case() {
          ),
       array(
          'source' => 'case:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

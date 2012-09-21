@@ -48,7 +48,7 @@ function biblio_zotero_get_field_mappings__thesis() {
          ),
       array(
          'source' => 'thesis:numPages',
-         'target' => '',
+         'target' => 'biblio_pages',
          'unique' => FALSE,
          ),
       array(
@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__thesis() {
          ),
       array(
          'source' => 'thesis:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

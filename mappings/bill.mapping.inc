@@ -13,7 +13,7 @@ function biblio_zotero_get_field_mappings__bill() {
          ),
       array(
          'source' => 'bill:billNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -73,7 +73,7 @@ function biblio_zotero_get_field_mappings__bill() {
          ),
       array(
          'source' => 'bill:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

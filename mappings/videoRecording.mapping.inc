@@ -53,7 +53,7 @@ function biblio_zotero_get_field_mappings__videoRecording() {
          ),
       array(
          'source' => 'videoRecording:numberOfVolumes',
-         'target' => '',
+         'target' => 'biblio_number_of_volumes',
          'unique' => FALSE,
          ),
       array(
@@ -72,13 +72,13 @@ function biblio_zotero_get_field_mappings__videoRecording() {
          'unique' => FALSE,
          ),
       array(
-         'source' => 'videoRecording:seriesTitle',
-         'target' => '',
+         'source' => 'videoRecording:series',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'videoRecording:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

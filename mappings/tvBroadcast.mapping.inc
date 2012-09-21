@@ -33,7 +33,7 @@ function biblio_zotero_get_field_mappings__tvBroadcast() {
          ),
       array(
          'source' => 'tvBroadcast:episodeNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__tvBroadcast() {
          ),
       array(
          'source' => 'tvBroadcast:programTitle',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
@@ -78,7 +78,7 @@ function biblio_zotero_get_field_mappings__tvBroadcast() {
          ),
       array(
          'source' => 'tvBroadcast:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

@@ -67,13 +67,13 @@ function biblio_zotero_get_field_mappings__computerProgram() {
          'unique' => FALSE,
          ),
       array(
-         'source' => 'computerProgram:seriesTitle',
-         'target' => '',
+         'source' => 'computerProgram:series',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'computerProgram:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(

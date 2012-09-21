@@ -63,7 +63,7 @@ function biblio_zotero_get_field_mappings__patent() {
          ),
       array(
          'source' => 'patent:patentNumber',
-         'target' => '',
+         'target' => 'biblio_number',
          'unique' => FALSE,
          ),
       array(
@@ -88,7 +88,7 @@ function biblio_zotero_get_field_mappings__patent() {
          ),
       array(
          'source' => 'patent:shortTitle',
-         'target' => '',
+         'target' => 'biblio_short_title',
          'unique' => FALSE,
          ),
       array(
