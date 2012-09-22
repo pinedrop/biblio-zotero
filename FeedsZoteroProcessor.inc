@@ -297,20 +297,18 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    * The zotero items are all in  $result->current_item
    **/
    protected function map(FeedsSource $source, FeedsParserResult $result, $target_item = NULL) {
-
       $zot2bib = $this->getZot2BibMappings();
       
       // Log unmapped fields to watchdog
       $map_report = array();
       foreach ($result->current_item as $key => $val) {
-         // dd($key, "KEY!!!!");
          
          $dont_log = array( 'guid', 'published', 'updated', 'key', 'itemType', 'description', 'creatorSummary','year', 'tags', 'creators');
          if ( in_array($key, $dont_log) || ! in_array($key, array_keys(FeedsZoteroParser::getMappingSources()))) {
             continue;
          }
-
-         $target = $zot2bib[$key] ;
+         
+         $target = $zot2bib[$key];
          $val = empty($val) ? 'NO VALUE' : $val;   
          $trunc_val = isset($val) && strlen($val) < 25 ? $val : substr($val,0,25) . "..." ;
          if ( empty($target) ) {
@@ -320,7 +318,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
             $msg = t("Source '@key' with value '@val' was mapped to target '@target'", array('@key' => $key, '@val' => $trunc_val, '@target' => $target));
             $mapped = TRUE;
          }
-
+         
          if ( isset($msg) ) {
             /** @TODO write the map success/failures to a tab-delim file */
             $keybits = explode(":", $key);
@@ -329,8 +327,6 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
             $m = $mapped ? "mapped":"unmapped";
             $map_report[$it][$fn] = !empty($target) ? $target : 'UNMAPPED';
             $tab_data = "$it	$fn	$trunc_val	$m"; 
-            //dd($tab_data);
-            //dd($msg);
             watchdog('FeedsZoteroProcessor', $msg, NULL, WATCHDOG_NOTICE, $link = NULL);
          }
          unset($msg);
@@ -338,7 +334,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       
       foreach ($map_report as $it => $row) {
          foreach($row as $fn => $m) {
-            file_put_contents($source->reportFilePath, "$it\t$fn\t$m", FILE_APPEND);
+            file_put_contents($source->reportFilePath, "$it\t$fn\t$m" . PHP_EOL, FILE_APPEND);
          }
       }
       
@@ -346,18 +342,16 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       // parent::map IS OVERRIDDEN below in super_map parent::map($source, $result, $target_item);
       $this->super_map($source, $result, $target_item);
       
-      // set notes and ??? what-else? to not save
       if ($result->current_item['itemType'] == 'note') {
          $type=$result->current_item['itemType'];
-         // skip saving for this item: see FeedsProcessor::process
-         $target_item->feeds_item->skip = TRUE;
+         $target_item->feeds_item->skip = TRUE; // skip saving for this item: see FeedsProcessor::process
          return;
       }
       
       // map zotero fields
       $parser = feeds_importer($this->id)->parser; // $batch's fields are protected so we have to get them from the parser
       $itemType = $parser->getSourceElement($source, $result, 'itemType');
-      $target_item->biblio_type = ZoteroBiblioMap::zoteroToBiblioType($itemType);
+      $target_item->biblio_type = BiblioZotero::getZoteroTypeToBiblioType($itemType);
       
       // map the tags 
       /** @TODO figure out how to use mapping targets for this **/
@@ -380,7 +374,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       }
       $target_item->taxonomy['tags'][$this->config['tags_vocab_id']] = implode(",", $tagStrings);
       
-
+      
 		
 		// map the institution
       /** @TODO use a mapping target for this **/

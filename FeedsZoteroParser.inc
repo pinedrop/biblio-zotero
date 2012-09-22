@@ -83,9 +83,9 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
    * Zotero field names for sources are found here: http://www.zotero.org/support/dev/client_coding/javascript_api/search_fields
    */
    public function getMappingSources() {
-      module_load_include('inc', 'biblio_zotero', 'zotero');
+      module_load_include('inc', 'biblio_zotero', 'biblio_zotero');
       $refresh = $this->config['refresh_zotero_item_type_fields'];
-      $zoteroItemStructure = Zotero::getItemTypeStructure($refresh);
+      $zoteroItemStructure = BiblioZotero::getItemTypeStructure($refresh);
       $sources = array();
       foreach ( $zoteroItemStructure as  $key => $zotero_type ) {
          $item_type = $key;

@@ -129,7 +129,7 @@ function biblio_zotero_feeds_importer_default() {
 }
 
 function biblio_zotero_node_presave($node) {
-   dpm($node, "node@hook_node_presave");
+  // dpm($node, "node@hook_node_presave");
 }
 
 /**
@@ -156,9 +156,9 @@ function biblio_zotero_feeds_parser_sources_alter(&$sources, $content_type) {
 }
 
 function biblio_zotero_get_default_mappings() {
-   module_load_include('inc', 'biblio_zotero', 'zotero');
+   module_load_include('inc', 'biblio_zotero', 'biblio_zotero');
    $all_mappings = array();
-   $itemTypesStructure = array_keys(Zotero::getItemTypeStructure());
+   $itemTypesStructure = array_keys(BiblioZotero::getItemTypeStructure());
    foreach ($itemTypesStructure as $itemType) {
       if ( in_array($itemType, array('note', 'attachment')) ) {
          continue;
