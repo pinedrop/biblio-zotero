@@ -45,14 +45,26 @@ Here you can set the following options:
       If found, it will make that user the owner of the biblio item.
       
 Mappings for Feeds Zotero Processor
+
 <yoursite>/admin/structure/feeds/zotero_feed/mapping
 For each item type in zotero you can customize which biblio field it should be mapped to. To see which biblio fields 
 are available for which publication type, see <yoursite>/admin/config/content/biblio/fields. To see which zotero item
 types are mapped to which biblio publication type, see the "getZoteroTypeToBiblioType" function in the biblio_zotero.inc file:
 
+IMPORTANT: biblio_zotero can only map a subset of zotero item types and fields to biblio publication types and fields. You can, of course, 
+extend biblio to include the 
+
+Mapping log per import
+After each feeds run, biblio_zotero writes a tab-delimited report of which zotero fields were and were not mapped. 
+The file is stored in drupal's temporary directory.
+
 NICE TO HAVES / TODO
 * Allow admins to map zotero item types to different biblio publication types (might want to create the missing zotero item types as zotero pub types);
+* Allow admins to change the mappings for zotero creators to biblio contributors.
 * document how to override sources, targets and mappings in a custom module
+* Provide config settings to turn the mapping log off if desired
+* Provide an optional module that configures a stock biblio installation to have the necessary publication types, fields and contributor types to allow 
+   for a complete mapping 
 
 
 

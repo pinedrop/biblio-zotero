@@ -318,9 +318,11 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       */
       
       $source->reportFilePath = file_directory_temp() ."/biblio-zotero-mapping-report-" . time() . ".tab.txt"; 
-      file_put_contents($source->reportFilePath, "zotero itemtype\tzotero field name\tbiblio field mapping"); // this needs to go here since map is called multiple times per import.
+      file_put_contents($source->reportFilePath, "zotero itemtype\tzotero field name\tbiblio field mapping\n"); // this needs to go here since map is called multiple times per import.
       parent::process($source, $parser_result);
-      drupal_set_message( t('Biblio Zotero wrote an import report of mapped and un-mapped fields to @filename', array('@filename' => $source->reportFilePath)));
+      $msg = t('Biblio Zotero wrote an import report of mapped and un-mapped fields to @filename', array('@filename' => $source->reportFilePath));
+      watchdog('FeedsZoteroProcessor', $msg, NULL, WATCHDOG_NOTICE, $link = NULL);
+      drupal_set_message( t('Biblio Zotero wrote an import report of mapped and un-mapped fields to drupal\'s temp directory. See the watchdog for details.'));
       /** @TODO look at parent::process to see about UPDATING during import **/
    }
    
@@ -504,7 +506,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       // Log unmapped fields to watchdog
       $map_report = array();
       foreach ($result->current_item as $key => $val) {
-         $dont_log = array( 'guid', 'published', 'updated', 'key', 'itemType', 'description', 'creatorSummary','year', 'tags', 'creators');
+         $dont_log = array( 'url', 'guid', 'published', 'updated', 'key', 'itemType', 'description', 'creatorSummary','year', 'tags', 'creators');
          if ( in_array($key, $dont_log) || ! in_array($key, array_keys(FeedsZoteroParser::getMappingSources()))) {
             continue;
          }
