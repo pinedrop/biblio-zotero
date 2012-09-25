@@ -129,7 +129,7 @@ function biblio_zotero_feeds_importer_default() {
 }
 
 function biblio_zotero_node_presave($node) {
-  // dpm($node, "node@hook_node_presave");
+  //dpm($node, "node@hook_node_presave");
 }
 
 /**
@@ -137,7 +137,7 @@ function biblio_zotero_node_presave($node) {
 **/
 function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
    foreach ($targets as $key => $target) {
-      if (   strpos( $key, 'biblio_') >= 0 && ! in_array($key, array('biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
+      if (   strpos( $key, 'biblio_') >= 0 && ! in_array($key, array('url','guid', 'biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
          $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';  
       }
    }
@@ -168,12 +168,17 @@ function biblio_zotero_get_default_mappings() {
       $function_name = "biblio_zotero_get_field_mappings__$itemType";
       $item_type_mappings = call_user_func($function_name);
       biblio_zotero_remove_empty_targets($item_type_mappings);
-      $all_mappings = array_merge($all_mappings, $item_type_mappings);      
+      $all_mappings = array_merge($all_mappings, $item_type_mappings);
    }
    $other_mappings = array( 
       array(
          'source' => 'guid',
          'target' => 'guid',
+         'unique' => TRUE,
+         ),
+      array(
+         'source' => 'url',
+         'target' => 'url',
          'unique' => TRUE,
          ),
       array(

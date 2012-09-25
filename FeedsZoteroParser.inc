@@ -60,6 +60,7 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
          $item = array_merge($item, (array)$data);
          self::addItemTypePrefixes($item);
          
+         $item['url'] = (string)$entry->id;
          $item['guid'] = (string)$entry->id;
          $item['published'] = (string)$entry->published;
          $item['updated'] = (string)$entry->updated;

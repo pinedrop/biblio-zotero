@@ -227,7 +227,8 @@ class ZoteroBiblioMap {
 		
 		if(isset($biblioToZotero[$type])) {
 			return $biblioToZotero[$type];
-		} else {
+		} 
+		else {
 			return ($flip ? self::BIBLIO_MISCELLANEOUS : $biblioToZotero[self::BIBLIO_MISCELLANEOUS]);
 		}
 	}

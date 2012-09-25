@@ -31,6 +31,8 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       $config['tags_field'] = null;
       $config['tags_vocab'] = null;
       $config['notes_field'] = 'biblio_notes';
+      $config['use_feed_owner_as_author'] = FALSE;
+      $config['zotero_username_field_name'] = '';
       return $config;
    }
    
@@ -39,19 +41,13 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    */
    public function configForm(&$form_state) {
       $form = parent::configForm($form_state);
-      
-      /* $form['notes_field'] = array(
-      '#type' => 'select',
-      '#title' => t('Biblio field  for zotero notes?'),
-      '#description' => t('Zotero notes connot be mapped using the Mappings form. This '),
-      '#options' => array(1 => t('yes'), 0 => t('no')),
-      '#default_value' => $this->config['sync_tags'],
-      ); */
+      $c = $this->getConfig();
       
       // get tags vocabs for content type
       $content_type = $this->config['content_type'];
       $fields=field_info_instances("node",$content_type);
       $taxo_field_options = array();
+      $taxo_field_options[''] = t(' - Select -');
       foreach ($fields as $field_machine_name => $field) {
          $taxo_field_options[$field_machine_name] = $field['label'];
       }
@@ -59,7 +55,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       if ( ! empty( $taxo_field_options)) {
          $form['sync_tags'] = array(
             '#type' => 'radios',
-            '#title' => t('Sync zotero tags to biblio nodes?'),
+            '#title' => t('Sync zotero tags to a term reference field in the biblio content type?'),
             '#options' => array(1 => t('yes'), 0 => t('no')),
             '#default_value' => $this->config['sync_tags'],
             );
@@ -88,6 +84,35 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
             '#markup' => t('<p class="warning">Please configure at least one !taxo_link to import zotero tags. </p>', array( '!taxo_link' => l(t('taxonomy vocabulary'), 'admin/structure/taxonomy')))
             );
       }
+      
+      // AUTHOR settings for imported nodes
+      
+      // Use feed_owner as author?
+      $form['use_feed_owner_as_author'] = array(
+         '#type' => 'radios',
+         '#title' => t('Use the feed owner\'s user account the author of imported nodes?'),
+         '#description' => t('This will override the \'Author\' setting above'),
+         '#options' => array(1 => t('yes'), 0 => t('no')),
+         '#default_value' => $this->config['use_feed_owner_as_author'],
+         );
+      
+      // Choose a field for zotero usernames stored in the user profile
+      /** @TODO test this with profile and profile2 modules **/
+      $fields=field_info_instances("user" );
+      $zotero_username_field_options = array();
+      $zotero_username_field_options[''] = t(' - Select -'); // if this option is chosen it means don't map zotero users to drupal users
+      foreach ($fields['user'] as $field_machine_name => $field) {
+         if ($field['entity_type'] == 'user') {
+            $zotero_username_field_options[$field_machine_name] = $field['label'];
+         }
+      }
+      $form['zotero_username_field_name'] = array(
+         '#title' => t('Zotero Username Profile Field'),
+         '#description' => t('In !user_settings_link you can add a user profile field for a user\'s zotero username which will allow zotero content to be attributed to drupal user accounts. This will override the \'Author\' and \'Use the feed owner\'s user account\' settings above.', array( '!user_settings_link' =>l(t('User Account Settings -> Manage Fields'),'admin/config/people/accounts/fields'))),
+         '#type' => 'select',
+         '#options' => $zotero_username_field_options,
+         '#default_value' => $this->config['zotero_username_field_name'],
+         );
       return $form;
    }
    
@@ -96,8 +121,9 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    */
    public function configFormValidate(&$values) {
       parent::configFormValidate($values);
+      
       if ( !empty($values['sync_tags']) && empty($values['tags_field'])) {
-         $warning = t('Important - to sync tags for this feed, you need at at least one taxonomy vocabulary configured and a term reference field in your content type:  !taxo_admin', array( '!taxo_admin' => l(t('taxonomy settings'), 'admin/content/taxonomy') ) );
+         $warning = t('To sync tags for this feed, you need at at least one taxonomy vocabulary configured and a term reference field in your content type:  !taxo_admin', array( '!taxo_admin' => l(t('taxonomy settings'), 'admin/content/taxonomy') ) );
          form_set_error('tags_field', $warning);
       }
       
@@ -108,8 +134,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
          if ( $taxo_field_info['settings']['allowed_values'][0]['vocabulary'] ) {
             $vocab_machine_name = $taxo_field_info['settings']['allowed_values'][0]['vocabulary']; 
             $values['tags_vocab'] = $vocab_machine_name;
-         }
-         
+         } 
          else {
             $warning = t('');
             form_set_error('tags_field', $warning);
@@ -124,12 +149,11 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       parent::configFormSubmit($values);
    }
    
-   
    /**
    * Return available mapping targets.
    * target names are from MySql Db:  DESCRIBE biblio_fields
    */
-//  THESE ARE ACTUALL ALREADY PROVIDED IN biblio.feeds.inc _biblio_feeds_processor_targets_alter()   
+   //  THESE ARE ACTUALL ALREADY PROVIDED IN biblio.feeds.inc _biblio_feeds_processor_targets_alter()   
    public function getMappingTargets() {
       $targets = array(
          'biblio_number' => array(
@@ -281,15 +305,23 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
          
          return $targets;
    }
-
+   
    public function process(FeedsSource $source, FeedsParserResult $parser_result) {
-      /** @TODO comment this ZoteroBiblioMap dependency out and try to import; then fix and get rid of the dependency **/
-      module_load_include('inc', 'biblio_zotero', 'ZoteroBiblioMap');
+      /* 
+      // debugging mappings keep this
+      $conf = $this->getConfig();
+      $msources = array();
+      foreach($conf['mappings'] as $m) {
+         $msources[] = $m['source'] . ' -> ' . $m['target'];
+      }
+      dpm($msources, "msources"); 
+      */
+      
       $source->reportFilePath = file_directory_temp() ."/biblio-zotero-mapping-report-" . time() . ".tab.txt"; 
-      file_put_contents($source->reportFilePath, "zotero itemtype\tzotero field name\tbiblio field mapping");
+      file_put_contents($source->reportFilePath, "zotero itemtype\tzotero field name\tbiblio field mapping"); // this needs to go here since map is called multiple times per import.
       parent::process($source, $parser_result);
       drupal_set_message( t('Biblio Zotero wrote an import report of mapped and un-mapped fields to @filename', array('@filename' => $source->reportFilePath)));
-      /** @TODO look at parent:process to see about UPDATING during import **/
+      /** @TODO look at parent::process to see about UPDATING during import **/
    }
    
    /**
@@ -297,64 +329,27 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    * The zotero items are all in  $result->current_item
    **/
    protected function map(FeedsSource $source, FeedsParserResult $result, $target_item = NULL) {
-      $zot2bib = $this->getZot2BibMappings();
       
-      // Log unmapped fields to watchdog
-      $map_report = array();
-      foreach ($result->current_item as $key => $val) {
-         
-         $dont_log = array( 'guid', 'published', 'updated', 'key', 'itemType', 'description', 'creatorSummary','year', 'tags', 'creators');
-         if ( in_array($key, $dont_log) || ! in_array($key, array_keys(FeedsZoteroParser::getMappingSources()))) {
-            continue;
-         }
-         
-         $target = $zot2bib[$key];
-         $val = empty($val) ? 'NO VALUE' : $val;   
-         $trunc_val = isset($val) && strlen($val) < 25 ? $val : substr($val,0,25) . "..." ;
-         if ( empty($target) ) {
-            $msg = t("Source '@key' with value '@val' was NOT MAPPED to any target", array('@key' => $key, '@val' => $trunc_val));
-            $mapped = FALSE;
-         } else {
-            $msg = t("Source '@key' with value '@val' was mapped to target '@target'", array('@key' => $key, '@val' => $trunc_val, '@target' => $target));
-            $mapped = TRUE;
-         }
-         
-         if ( isset($msg) ) {
-            /** @TODO write the map success/failures to a tab-delim file */
-            $keybits = explode(":", $key);
-            $it = $keybits[0];
-            $fn = $keybits[1];
-            $m = $mapped ? "mapped":"unmapped";
-            $map_report[$it][$fn] = !empty($target) ? $target : 'UNMAPPED';
-            $tab_data = "$it	$fn	$trunc_val	$m"; 
-            watchdog('FeedsZoteroProcessor', $msg, NULL, WATCHDOG_NOTICE, $link = NULL);
-         }
-         unset($msg);
-      }
-      
-      foreach ($map_report as $it => $row) {
-         foreach($row as $fn => $m) {
-            file_put_contents($source->reportFilePath, "$it\t$fn\t$m" . PHP_EOL, FILE_APPEND);
-         }
-      }
+      // log the mapping succeses and failures to a tab-delimited file in the temp direcory
+      $this->logMapping($source,$result);
       
       // Do the mappings
-      // parent::map IS OVERRIDDEN below in super_map parent::map($source, $result, $target_item);
+      // parent::map($source, $result, $target_item); //parent::map IS OVERRIDDEN below in super_map
       $this->super_map($source, $result, $target_item);
       
-      if ($result->current_item['itemType'] == 'note') {
-         $type=$result->current_item['itemType'];
-         $target_item->feeds_item->skip = TRUE; // skip saving for this item: see FeedsProcessor::process
-         return;
-      }
-      
-      // map zotero fields
+      // map the remaining zotero fields which do not have mapping sources: tags, creators, 
+      $feed = node_load($target_item->feeds_item->feed_nid);
       $parser = feeds_importer($this->id)->parser; // $batch's fields are protected so we have to get them from the parser
       $itemType = $parser->getSourceElement($source, $result, 'itemType');
       $target_item->biblio_type = BiblioZotero::getZoteroTypeToBiblioType($itemType);
+
+      if ($itemType== 'note') {
+         $target_item->feeds_item->skip = TRUE; // skip saving for notes since they will be brought in as children of their parent item: see FeedsProcessor::process
+         return;
+      }
       
       // map the tags 
-      /** @TODO figure out how to use mapping targets for this **/
+      /** @TODO use mappings w/ source and target callbacks for this **/
       $tags = $parser->getSourceElement($source, $result, 'tags');
       $tags = is_array($tags) ? $tags : array();
       if ($this->config['tags_field']) {
@@ -362,22 +357,22 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
             $term =  taxonomy_get_term_by_name($t->tag, $this->config['tags_vocab']);
             if (  ! empty($term) ) {
                $term = array_pop($term);
-            } else {
+            } 
+            else {
                $vocab = taxonomy_vocabulary_machine_name_load($this->config['tags_vocab']);
                $term = new stdClass();
                $term->name = $t->tag;
                $term->vid = $vocab->vid;
                taxonomy_term_save($term);
             }
-            $target_item->{$this->config['tags_field']}['und'][] = (array)$term; 
+            /** @TODO get language from field **/
+            $target_item->{$this->config['tags_field']}[LANGUAGE_NONE][] = (array)$term; 
          }
       }
       $target_item->taxonomy['tags'][$this->config['tags_vocab_id']] = implode(",", $tagStrings);
       
-      
-		
 		// map the institution
-      /** @TODO use a mapping target for this **/
+      /** @TODO test using the biblio_contributors mapping target for this without overwriting the mapped values from the creators field. It should work **/
       $institution = $parser->getSourceElement($source, $result, 'institution');
 		if(! empty($institution) ) {
 		   $contributor = array(
@@ -389,18 +384,42 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		
 		// add the group
 		if ( module_exists('og') ) {
-		   $feed = node_load($target_item->feeds_item->feed_nid);
 		   $target_item->group_audience = $feed->group_audience;
+		}
+		
+		// try to set the author from the zotore username field
+		$author_uid = null;
+		$zot_user_name = 'travismccauley';
+		if ( ! empty($this->config['zotero_username_field_name']))  {
+		   $query = new EntityFieldQuery;
+		   $query
+		   ->entityCondition('entity_type', 'user')
+		   ->fieldCondition($this->config['zotero_username_field_name'], "value", $zot_user_name, '=', 0);
+		   $users = $query->execute();
+		   $author = array_shift($users['user']); 
+		   $author_uid = $author->uid;
+		}
+		
+		// if there was no corresponding zotero user found among the drupal users, use the feed owner if config says to do so.   
+		if ( empty($author_uid) && $this->config['use_feed_owner_as_author']) {
+		   $author_uid = $feed->uid;
+		}
+		
+		if ( $author_uid ) {
+		   $target_item->uid = $author_uid;
 		}
    }
    
    /**
    * Execute mapping on an item.
+   * 
    * This method is lifted in its entirety from FeedsProcessor::map() with one condition added which prevents calling 
    * setTargetElement if the item type doesnt match the item type in the prefix of the the mapping source, e.g. 'book' from book:title
    * This is needed since it appears that if multiple sources are mapped to the same target then that target is overwritten even when 
    * the source item does not contain data keyed to that source. For example, a zotero book type does not contain the key webpage:title so we 
    * need to prevent the null value for webpage:title being applied to the target that we want written with data from book:title
+   *
+   * @TODO test if all this can be accomplished by simply overriding the setTargetElement function. Surely it can.
    */
    protected function super_map(FeedsSource $source, FeedsParserResult $result, $target_item = NULL) {
       
@@ -440,6 +459,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       setTargetElement().
       */
       self::loadMappers();
+      
       foreach ($this->config['mappings'] as $mapping) {
          // Retrieve source element's value from parser.
          if (isset($sources[$this->id][$mapping['source']]) &&
@@ -462,7 +482,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
          $callback($source, $target_item, $mapping['target'], $value);
          }
          else {
-            // START modifications to FeedsProcessor::map
+            // START modifications to parent's FeedsProcessor::map
             $src_array = explode(":", $mapping['source']);
             $zotero_src_prefix = $src_array[0];
             $ok_to_set_target = sizeof($src_array) == 1 || $zotero_src_prefix == $result->current_item['itemType'];
@@ -474,8 +494,52 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       }
       return $target_item;
    }
+   
+   /**
+   * Since Zotero has so many item-type/field combinations, write a tab-delimited report for each run of a zotero feed
+   * that can be used to improve the mappings.
+   **/
+   function logMapping($source, $result) {
+      $zot2bib = $this->getZot2BibMappings();
+      // Log unmapped fields to watchdog
+      $map_report = array();
+      foreach ($result->current_item as $key => $val) {
+         $dont_log = array( 'guid', 'published', 'updated', 'key', 'itemType', 'description', 'creatorSummary','year', 'tags', 'creators');
+         if ( in_array($key, $dont_log) || ! in_array($key, array_keys(FeedsZoteroParser::getMappingSources()))) {
+            continue;
+         }
+         $target = $zot2bib[$key];
+         $val = empty($val) ? 'NO VALUE' : $val;   
+         $trunc_val = isset($val) && strlen($val) < 25 ? $val : substr($val,0,25) . "..." ;
+         if ( empty($target) ) {
+            $msg = t("Source '@key' with value '@val' was NOT MAPPED to any target", array('@key' => $key, '@val' => $trunc_val));
+            $mapped = FALSE;
+         } 
+         else {
+            $msg = t("Source '@key' with value '@val' was mapped to target '@target'", array('@key' => $key, '@val' => $trunc_val, '@target' => $target));
+            $mapped = TRUE;
+         }
+         
+         if ( isset($msg) ) {
+            /** @TODO write the map success/failures to a tab-delim file */
+            $keybits = explode(":", $key);
+            $it = $keybits[0];
+            $fn = $keybits[1];
+            $m = $mapped ? "mapped":"unmapped";
+            $map_report[$it][$fn] = !empty($target) ? $target : 'UNMAPPED';
+            $tab_data = "$it	$fn	$trunc_val	$m"; 
+            watchdog('FeedsZoteroProcessor', $msg, NULL, WATCHDOG_NOTICE, $link = NULL);
+         }
+         unset($msg);
+      }
+      foreach ($map_report as $it => $row) {
+         foreach($row as $fn => $m) {
+            file_put_contents($source->reportFilePath, "$it\t$fn\t$m" . PHP_EOL, FILE_APPEND);
+         }
+      }
+   }
+   
    function  getZot2BibMappings(){
-      //dd($this->config, "this->config");
       $z2b = &drupal_static(__FUNCTION__);
       if ( !isset( $z2b ) ) {
          $z2b = array();
@@ -485,4 +549,5 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       }
       return $z2b;
    }
+
 }
