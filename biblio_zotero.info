@@ -5,7 +5,6 @@ core = 7.x
 package = Biblio
 dependencies[] = biblio
 dependencies[] = feeds
-dependencies[] = feeds_ui
 files[] = FeedsZoteroFetcher.inc
 files[] = FeedsZoteroParser.inc
 files[] = FeedsZoteroProcessor.inc

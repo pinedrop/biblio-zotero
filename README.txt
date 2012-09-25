@@ -1,14 +1,58 @@
+ABOUT
+Biblio Zotero is a custom Feeds implementation to subscribe to multiple zotero user and group libraries and sync them with a biblio library. 
+It has been tested with Biblio versions 6.x-1.15 and 7.x-1.0-rc4
 
-DEPENDENCIES:
-This module looks for the phpZotero library in sites/all/libraries/phpZotero directory.
-phpZotero can be obtained here: https://github.com/clioweb/phpZotero
+DEPENDENCIES
+Requires: feeds and biblio. feeds_ui is also needed if you want to change any of the default settings as described below.
 
-INSTRUCTIONS:
-Install and enable the module.
+GETTING STARTED
+1. Install and enable the module at admin/structure/modules
+2. Important: after installing biblio_zotero, you must change the weight of the module to be higher than the weight of the biblio module.
+      You can do this with the Util module http://drupal.org/project/util. Or, if you know how, you can do it directly in the system table of your drupal installation.
+      
+CREATE YOUR FIRST ZOTERO-FEED NODE:
+1. Go to: <yoursite>/node/add/zotero-feed
+2. Name your feed, preferably, use the same name as your zotero library.
+3. Specify if it is to pull from a zotero group or from a personal library.
+4. If your zotero group or library is private, then you need to create an api key for yourself: https://www.zotero.org/settings/keys 
+   and then paste the value of the key into the api key field of your feed settings.
 
-To sync zotero tags, you need to specify the tags vocab you want to use in the zotero processor
-settings here: <yoursite>/admin/build/feeds/edit/zotero_feed/settings/FeedsZoteroProcessor
+ADVANCED CONFIGURATION OF THE ZOTERO FEED IMPORTER
+If feeds_ui is enabled and you have "adminster feeds" permission, you can modify the zotero_feed importer settings. 
+You can change the mappings, the field used for tags, whether or not and how to map zotero users to drupal users.
+Any change made here will effect all zotero-feed nodes that have been created using this importer (zotero_feed_
 
-TODO:
-sync updates to previously imported items
-implement and test apikey for non-public libraries
+Go to: <yoursite>/admin/structure/feeds/zotero_feed
+                                                                                                  
+Settings for Feeds Zotero Processor
+<yoursite>/admin/structure/feeds/zotero_feed/settings/FeedsZoteroProcessor
+Here you can set the following options:
+- Update existing nodes:  This should be set to "Update existing nodes" if your zotero items are likely to change at all.
+- Text format:  not applicable for the out-of-the-box biblio-zotero importer setup. It is also untested in biblio_zotero
+- Content type: this should always be set to Biblio unless you want to map zotero items to something other content type
+- Author:  this is the default author for imported nodes. (It can be overriden based on the options below)
+- Expire nodes: your choice. this is untested in biblio_zotero.
+- Sync zotero tags?
+- Select a term reference field in the biblio content type to use for zotero tags.
+   -- First, a taxonomy vocabulary for tags should be created if it doesn't exist.
+   -- Then a term reference field for tags should be set up.
+   -- Finally that new field can be selected in this select box
+- Use the feed owner's user account the author of imported nodes?
+   -- This will set the import items to be 
+- Zotero Username Profile Field
+   -- If you have added a field in   User Account Settings -> Manage Fields (admin/config/people/accounts/fields) they will appear here
+      and when zotero items are imported, the feeds processor will look for drupal users who have a zotero username listed in their user account
+      If found, it will make that user the owner of the biblio item.
+      
+Mappings for Feeds Zotero Processor
+<yoursite>/admin/structure/feeds/zotero_feed/mapping
+For each item type in zotero you can customize which biblio field it should be mapped to. To see which biblio fields 
+are available for which publication type, see <yoursite>/admin/config/content/biblio/fields. To see which zotero item
+types are mapped to which biblio publication type, see the "getZoteroTypeToBiblioType" function in the biblio_zotero.inc file:
+
+NICE TO HAVES / TODO
+* Allow admins to map zotero item types to different biblio publication types (might want to create the missing zotero item types as zotero pub types);
+* document how to override sources, targets and mappings in a custom module
+
+
+

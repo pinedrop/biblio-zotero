@@ -21,14 +21,15 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
    public function configForm(&$form_state) {
       $form = parent::configForm($form_state);
       
-      $form['refresh_zotero_item_type_fields'] = array(
+     /* THIS IS HANDY FOR DEBUGGING
+     $form['refresh_zotero_item_type_fields'] = array(
          '#type' => 'radios',
          '#title' => t('Refresh the item type fields?'),
          '#options' => array(1 => t('yes'), 0 => t('no')),
          '#default_value' => $this->config['refresh_zotero_item_type_fields'],
          '#description' => t('Refresh the item type fields every time the mappings are requested [e.g. on the mappings settings page]. Zotero occasionally changes the fields available for each item type so it is necessary to update the mapping sources. This will make the mappings page load slowly so it is best to uncheck this after you\'ve updated.'),
          
-         );
+         ); */
       return $form;
    }
    
