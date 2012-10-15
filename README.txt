@@ -1,29 +1,33 @@
 ABOUT
-Biblio Zotero is a custom Feeds implementation to subscribe to multiple zotero user and group libraries and sync them with a biblio library. 
+Biblio Zotero is a custom Feeds implementation to subscribe to 
+multiple zotero user and group libraries and sync them with a biblio library. 
 It has been tested with Biblio versions 6.x-1.15 and 7.x-1.0-rc4
 
 DEPENDENCIES
-Requires: feeds and biblio. feeds_ui is also needed if you want to change any of the default settings as described below.
+Requires: feeds and biblio. feeds_ui is also needed if you want to change 
+any of the default settings as described below.
 
 GETTING STARTED
-1. Install and enable the module at admin/structure/modules
-2. Important: after installing biblio_zotero, you must change the weight of the module to be higher than the weight of the biblio module.
-      You can do this with the Util module http://drupal.org/project/util. Or, if you know how, you can do it directly in the system table of your drupal installation.
+Install and enable the module at admin/structure/modules
       
 CREATE YOUR FIRST ZOTERO-FEED NODE:
 1. Go to: <yoursite>/node/add/zotero-feed
 2. Name your feed, preferably, use the same name as your zotero library.
 3. Specify if it is to pull from a zotero group or from a personal library.
-4. If your zotero group or library is private, then you need to create an api key for yourself: https://www.zotero.org/settings/keys 
-   and then paste the value of the key into the api key field of your feed settings.
+4. If your zotero group or library is private, then you need to create an 
+api key for yourself: https://www.zotero.org/settings/keys and then paste 
+the value of the key into the api key field of your feed settings.
 
 ADVANCED CONFIGURATION OF THE ZOTERO FEED IMPORTER
-If feeds_ui is enabled and you have "adminster feeds" permission, you can modify the zotero_feed importer settings. 
-You can change the mappings, the field used for tags, whether or not and how to map zotero users to drupal users.
-Any change made here will effect all zotero-feed nodes that have been created using this importer (zotero_feed_
+To modify the zotero_feed importer settings, first enable the module, 
+Feeds Admin UI (feeds_ui). Once Feeds Admin UI is enabled and your user has
+"adminster feeds" permission, you can change the mappings, the field 
+used for tags, whether or not and how to map zotero users to drupal users.
+Any changes made here will effect all zotero-feed nodes that have been created
+using this importer (zotero_feed).
 
 Go to: <yoursite>/admin/structure/feeds/zotero_feed
-                                                                                                  
+
 Settings for Feeds Zotero Processor
 <yoursite>/admin/structure/feeds/zotero_feed/settings/FeedsZoteroProcessor
 Here you can set the following options:
@@ -51,20 +55,24 @@ For each item type in zotero you can customize which biblio field it should be m
 are available for which publication type, see <yoursite>/admin/config/content/biblio/fields. To see which zotero item
 types are mapped to which biblio publication type, see the "getZoteroTypeToBiblioType" function in the biblio_zotero.inc file:
 
-IMPORTANT: biblio_zotero can only map a subset of zotero item types and fields to biblio publication types and fields. You can, of course, 
-extend biblio to include the 
-
-Mapping log per import
-After each feeds run, biblio_zotero writes a tab-delimited report of which zotero fields were and were not mapped. 
+IMPORTANT
+- Biblio_zotero can only map a subset of zotero item types and fields to biblio publication types and fields. You can, of course, 
+extend biblio to include the Zotero fields that don't map to any biblio fields.
+- During installation, biblio_zotero sets it module weight in the system table to 10 (one higher than the default weight of biblio).
+If you've changed the weight of biblio, you'll want to manually set the weight of biblio sotero to be higher than that of biblio.
+- After each feeds run, biblio_zotero writes a tab-delimited report of which zotero fields were and were not mapped. 
 The file is stored in drupal's temporary directory.
 
-NICE TO HAVES / TODO
-* Allow admins to map zotero item types to different biblio publication types (might want to create the missing zotero item types as zotero pub types);
-* Allow admins to change the mappings for zotero creators to biblio contributors.
-* document how to override sources, targets and mappings in a custom module
-* Provide config settings to turn the mapping log off if desired
-* Provide an optional module that configures a stock biblio installation to have the necessary publication types, fields and contributor types to allow 
-   for a complete mapping 
+NICE-TO-HAVES / TODO
+- Allow admins to map zotero item types to different biblio publication types (might want to create the missing zotero item types as zotero pub types);
+- Allow admins to change the mappings for zotero creators to biblio contributors.
+- document how to override sources, targets and mappings in a custom module
+- Provide config settings to turn the mapping log off if desired
+- Provide an optional module that configures a stock biblio installation to have the necessary publication types, fields and contributor types to allow 
+  for a complete mapping 
+- Provide support for profile and profile2 modules for zotero username field.
+- Biblio2 support
+
 
 
 

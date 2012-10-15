@@ -25,8 +25,7 @@ function biblio_zotero_node_info() {
 */
 function biblio_zotero_ctools_plugin_api() {
    list($module, $api) = func_get_args();
-   if ($module == "feeds" && $api == "feeds_importer_default") {
-      // The current API version is 1.
+   if ($module == "feeds" && $api =='feeds_importer_default') {
       return array("version" => 1);
    }
 }

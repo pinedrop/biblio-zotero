@@ -1,0 +1,24 @@
+<?php
+
+function biblio_zotero_install() {
+   biblio_zotero_set_system_weight();
+}
+
+/**
+* Set system weight to 10 (one higher than biblio)
+**/
+function biblio_zotero_update_7000() {
+   biblio_zotero_set_system_weight();
+}
+
+function biblio_zotero_set_system_weight() {
+   // biblio module weight is 9 so let's set our weight one higher so that our 
+   // hook_feeds_processor_targets_alter functions can override those in biblio
+   db_update('system')
+   ->fields(array(
+      'weight' => 10,
+      ))
+   ->condition('name', 'biblio_zotero')
+   ->execute();
+   return;
+}
