@@ -140,7 +140,7 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
     
     //alter the config for next fetch before saving new config
     $feed_raw_xml = $result->getRaw();
-    dd($feed_raw_xml, "feed_raw_xml");
+    //dd($feed_raw_xml, "feed_raw_xml");
     $feed_simple_xml = simplexml_load_string($feed_raw_xml);
     $next = $feed_simple_xml->xpath("*[@rel='next']"); 
     $first = $feed_simple_xml->xpath("*[@rel='first']"); 
