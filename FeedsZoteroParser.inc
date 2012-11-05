@@ -45,14 +45,16 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
    public function parse(FeedsSource $source, FeedsFetcherResult $fetcher_result) {
       feeds_include_library('common_syndication_parser.inc', 'common_syndication_parser');
       
+      $source_config = $source->getConfig();
       $feed_raw_xml = $fetcher_result->getRaw();
+      //dd($feed_raw_xml, "feed_raw_xml");
+      
       $feed_simple_xml = simplexml_load_string($feed_raw_xml);
       $namespaces = $feed_simple_xml->getNameSpaces(true);
       
       $result = new FeedsParserResult();
       $result->title = (string)$feed_simple_xml->title;
       $result->link = (string)array_shift($feed_simple_xml->link);
-      
       foreach ($feed_simple_xml->entry as $entry) {
          $item = array();
          
@@ -110,22 +112,22 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
       return $sources;
    }
    
+   /**
+   * Fetch children of a top-level item
+   * @TODO handle cases where there are more than 99 child items; look for rel='next' value
+   **/
    private function addZoteroChildren( FeedsSource $source, &$item ) {
       // get the child items: notes, attachments, and what else?
+      
       /** @TODO somehow keep notes metadata, author, tags, etc. **/
       if ( $item['numChildren'] > 0 ) {
-         $conf = $source->getConfig();
-         $feed_url = $conf['FeedsZoteroFetcher']['source'];
-         $q_pos = strpos( $feed_url, '?');
-         $url = substr($feed_url, 0, $q_pos);  // api base url
          $zapiKey = $item['key'];
-         $child_service_url = $url . "/$zapiKey/children?content=json"; // child items url
-         if ( ! empty( $conf['FeedsZoteroFetcher']['api_key'] ) ) {
-            $child_service_url .= '&key=' . $conf['FeedsZoteroFetcher']['api_key'];
+         $source_config = $source->getConfig();
+         $child_service_url = sprintf( $source_config['FeedsZoteroFetcher']['child_source'],$zapiKey );  // child items url
+         if ( ! empty( $source_config['FeedsZoteroFetcher']['api_key'] ) ) {
+            $child_service_url .= '&key=' . $source_config['FeedsZoteroFetcher']['api_key'];
          }
-         
          $xml_str = file_get_contents($child_service_url); /** @TODO use authentication if in Fetcher **/ 
-         
          $xml = simplexml_load_string($xml_str);
          $namespaces = $xml->getNameSpaces(true);
          
@@ -145,6 +147,8 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
                // This is here so the processor can do something more exciting than concat note text. 
                //@TODO expose 'notes' this with a proper source callback and target callback
                $item['notes'][] = $child; 
+               break;
+            default:
             }
          }
       }

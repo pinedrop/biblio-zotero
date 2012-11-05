@@ -17,6 +17,10 @@ CREATE YOUR FIRST ZOTERO-FEED NODE:
 4. If your zotero group or library is private, then you need to create an 
 api key for yourself: https://www.zotero.org/settings/keys and then paste 
 the value of the key into the api key field of your feed settings.
+5. Enter a value for the 'limit' field to specify how many items from zotero 
+to fetch at a time (default is 50; maximum is 99). If you have a large library it will take some
+time to import the entire library. Feeds are fetched once for each cron run. You can also fetch
+them manually from the "import" tab of your feed node.
 
 ADVANCED CONFIGURATION OF THE ZOTERO FEED IMPORTER
 To modify the zotero_feed importer settings, first enable the module, 

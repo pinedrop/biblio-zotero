@@ -308,7 +308,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    
    public function process(FeedsSource $source, FeedsParserResult $parser_result) {
       /* 
-      // debugging mappings keep this
+      // debugging mappings; keep this;
       $conf = $this->getConfig();
       $msources = array();
       foreach($conf['mappings'] as $m) {
