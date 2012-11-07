@@ -354,6 +354,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       /** @TODO use mappings w/ source and target callbacks for this **/
       $tags = $parser->getSourceElement($source, $result, 'tags');
       $tags = is_array($tags) ? $tags : array();
+      $tagStrings = array();
       if ($this->config['tags_field']) {
          foreach ($tags as $t) {
             $term =  taxonomy_get_term_by_name($t->tag, $this->config['tags_vocab']);
@@ -367,6 +368,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
                $term->vid = $vocab->vid;
                taxonomy_term_save($term);
             }
+            $tagStrings[] = $term->name;
             /** @TODO get language from field **/
             $target_item->{$this->config['tags_field']}[LANGUAGE_NONE][] = (array)$term; 
          }

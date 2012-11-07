@@ -54,7 +54,7 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
       
       $result = new FeedsParserResult();
       $result->title = (string)$feed_simple_xml->title;
-      $result->link = (string)array_shift($feed_simple_xml->link);
+      // $result->link = (string)array_shift($feed_simple_xml->link);
       foreach ($feed_simple_xml->entry as $entry) {
          $item = array();
          

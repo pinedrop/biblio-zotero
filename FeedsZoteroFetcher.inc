@@ -168,7 +168,6 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
       $values['source'] .= sprintf('&start=%d',$values['next_index'] );  // next_index is changed after every fetch
       $values['child_source'] = sprintf('https://api.zotero.org/%s/%d/items/%%s/children', $zotType, $values['zotero_id']); // the last token is replaced during parsing
       $values['child_source'] .= '?content=json&limit=99';
-      https://api.zotero.org/groups/2593/items/P54WAKU7/children?content=json
       if ( ! empty( $values['api_key'] ) ) {
          // TODO validate the api_key
          $values['source'] .= '&key=' . $values['api_key'];
