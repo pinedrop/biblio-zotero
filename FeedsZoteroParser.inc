@@ -107,14 +107,13 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
          'callback' => 'biblio_zotero_feeds_source_creators',
          );
 
-
       $sources += parent::getMappingSources();
       return $sources;
    }
    
    /**
    * Fetch children of a top-level item
-   * @TODO handle cases where there are more than 99 child items; look for rel='next' value
+   * @TODO handle cases where there are more than 99 CHILD items; look for rel='next' value
    **/
    private function addZoteroChildren( FeedsSource $source, &$item ) {
       // get the child items: notes, attachments, and what else?

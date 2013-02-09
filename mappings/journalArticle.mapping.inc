@@ -73,7 +73,7 @@ function biblio_zotero_get_field_mappings__journalArticle() {
          ),
       array(
          'source' => 'journalArticle:publicationTitle',
-         'target' => '',
+         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(
@@ -83,17 +83,12 @@ function biblio_zotero_get_field_mappings__journalArticle() {
          ),
       array(
          'source' => 'journalArticle:series',
-         'target' => 'biblio_secondary_title',
+         'target' => 'biblio_alternate_title',
          'unique' => FALSE,
          ),
       array(
          'source' => 'journalArticle:seriesText',
          'target' => '',
-         'unique' => FALSE,
-         ),
-      array(
-         'source' => 'journalArticle:series',
-         'target' => 'biblio_secondary_title',
          'unique' => FALSE,
          ),
       array(

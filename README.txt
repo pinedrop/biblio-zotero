@@ -22,6 +22,15 @@ to fetch at a time (default is 50; maximum is 99). If you have a large library i
 time to import the entire library. Feeds are fetched once for each cron run. You can also fetch
 them manually from the "import" tab of your feed node.
 
+OG INTEGRATION
+The way that the OG integration works is that imported biblio items are added to the same group 
+that the zotero-feed belongs to. So first, you have edit the zotero-feed content type and set it to 
+be group content (not a group itself, but content that can be posted to a group). Assuming you haven't 
+changed the content type that acts as the zotero feed, you would do that here: admin/structure/types/manage/zotero_feed.
+Then when you create your feed (node/add/zotero-feed) where you specify the zotero library id, 
+you also specify the group audience and any content you import also gets that same group audience. 
+It works with both one or multiple groups set as group audience.
+
 ADVANCED CONFIGURATION OF THE ZOTERO FEED IMPORTER
 To modify the zotero_feed importer settings, first enable the module, 
 Feeds Admin UI (feeds_ui). Once Feeds Admin UI is enabled and your user has
