@@ -44,7 +44,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       $c = $this->getConfig();
       
       // get tags vocabs for content type
-      $content_type = $this->config['content_type'];
+      $content_type = !empty($this->config['content_type']) ? $this->config['content_type'] : $this->config['bundle'];
       $fields=field_info_instances("node",$content_type);
       $taxo_field_options = array();
       $taxo_field_options[''] = t(' - Select -');
@@ -391,7 +391,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		   $target_item->group_audience = $feed->group_audience;
 		}
 		
-		// try to set the author from the zotore username field
+		// try to set the author from the zotero username field
 		$author_uid = null;
 		$zot_user_name = 'travismccauley';
 		if ( ! empty($this->config['zotero_username_field_name']))  {
@@ -417,7 +417,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
    /**
    * Execute mapping on an item.
    * 
-   * This method is lifted in its entirety from FeedsProcessor::map() with one condition added which prevents calling 
+   * This method is lifted in its entirety from ancestor class FeedsProcessor::map() with one condition added which prevents calling 
    * setTargetElement if the item type doesnt match the item type in the prefix of the the mapping source, e.g. 'book' from book:title
    * This is needed since it appears that if multiple sources are mapped to the same target then that target is overwritten even when 
    * the source item does not contain data keyed to that source. For example, a zotero book type does not contain the key webpage:title so we 
