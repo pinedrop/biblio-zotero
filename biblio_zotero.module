@@ -127,16 +127,13 @@ function biblio_zotero_feeds_importer_default() {
    return $export;
 }
 
-function biblio_zotero_node_presave($node) {
-  //dpm($node, "node@hook_node_presave");
-}
 
 /**
 * http://drupalcontrib.org/api/drupal/contributions%21feeds%21feeds.api.php/function/hook_feeds_processor_targets_alter/7
 **/
 function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
    foreach ($targets as $key => $target) {
-      if (   strpos( $key, 'biblio_') >= 0 && ! in_array($key, array('url','guid', 'biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
+      if (   strpos( $key, 'biblio_') !== FALSE && ! in_array($key, array('url','guid', 'biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
          $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';  
       }
    }
@@ -159,7 +156,7 @@ function biblio_zotero_get_default_mappings() {
    $all_mappings = array();
    $itemTypesStructure = array_keys(BiblioZotero::getItemTypeStructure());
    foreach ($itemTypesStructure as $itemType) {
-      if ( in_array($itemType, array('note', 'attachment')) ) {
+      if ( in_array($itemType, array('note', 'links', 'files')) ) {
          continue;
       }
       $filename  = "mappings/" . $itemType . ".mapping";
@@ -200,6 +197,17 @@ function biblio_zotero_get_default_mappings() {
          'target' => 'biblio_contributors',
          'unique' => FALSE,
          ),
+      array(
+         'source' => 'links',
+         'target' => 'field_zotero_attachment',
+         'unique' => FALSE,
+         ),
+      array(
+         'source' => 'files',
+         'target' => 'field_zotero_attachment',
+         'unique' => FALSE,
+         ),
+
       /** @TODO  UNCOMMENT WHEN notes are properly mapped
       array(
       'source' => 'notes',
@@ -304,4 +312,48 @@ function getBiblioAuthorTypeFromZoteroCreatorType( $creatorType ) {
       'castMember' => array('desc' => 'Cast Member', 'auth_category' => 1, 'auth_type' => 1),
       );
    return $zotCreator2BibAuthType[$creatorType];
+}
+
+function biblio_zotero_get_collection_term($collection_key) {
+  static $terms = array();
+  if (isset($terms[$collection_key]) && $terms[$collection_key]) {
+    return $terms[$collection_key];
+  }
+  else {
+    $result = db_query('SELECT tid FROM {biblio_zotero_collections} WHERE collection_key = :key', array(':key' => $collection_key));  
+    $term = taxonomy_term_load($result->fetchField());
+    $terms[$collection_key] = $term;
+    return $term;
+  }
+}
+
+function biblio_zotero_create_collection_term($vid, $name, $collection_key, $parent_collection_key=FALSE) {
+  global $count;
+  $count++;
+  $term = new StdClass();
+  $term->vid = $vid;
+  $term->name = $name;
+  $term->key = $collection_key;
+  $term->parentterm = $parent_collection_key; 
+  if ($parent_collection_key) {
+    $term->parent = biblio_zotero_get_collection_term($parent_collection_key)->tid;
+  }
+  taxonomy_term_save($term);
+  db_query('INSERT INTO {biblio_zotero_collections} VALUES (:tid, :key)', array(':tid' => $term->tid, ':key' => $collection_key));  
+}
+/**
+ * Implements hook_taxonomy_term_delete().
+ */
+function biblio_zotero_taxonomy_term_delete($term) {
+  db_query('DELETE FROM {biblio_zotero_collections} WHERE tid = :tid', array(':tid' => $term->tid));  
+}
+
+
+function biblio_zotero_reindex_search() {
+  $result = db_query("SELECT nid from {node} where type = 'biblio'");
+  while ($nid = $result->fetchField()) {
+    $node = node_load($nid);
+    _node_index_node($node);
+  }
+  search_update_totals();
 }

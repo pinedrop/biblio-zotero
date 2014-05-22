@@ -10,3 +10,10 @@ files[] = FeedsZoteroParser.inc
 files[] = FeedsZoteroProcessor.inc
 files[] = biblio_zotero.inc
 
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "biblio_zotero"
+datestamp = "1380556070"
+
