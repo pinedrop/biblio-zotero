@@ -22,3 +22,32 @@ function biblio_zotero_set_system_weight() {
    ->execute();
    return;
 }
+
+function biblio_zotero_schema() {
+  $schema['biblio_zotero_collections'] = array(
+    'fields' => array(
+      'tid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+        'description' => 'The taxonomy id of the collection',
+      ),
+      'collection_key' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '128',
+        'description' => 'The key of the collection in Zotero',
+      ),
+    )
+  );
+  return $schema;  
+}
+
+/**
+ * Create new database table {biblio_zotero_collections}.
+ */
+function biblio_zotero_update_7001() {
+  $schema = biblio_zotero_schema();
+  db_create_table('biblio_zotero_collections', $schema['biblio_zotero_collections']);
+}
