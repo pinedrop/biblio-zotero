@@ -417,7 +417,7 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
     feeds_include_library('http_request.inc', 'http_request');
     $result = http_request_get($url, NULL, NULL, NULL, $this->timeout);
     if (!in_array($result->code, array(200, 201, 202, 203, 204, 205, 206))) {
-      throw new Exception(t('Download of @url failed with code !code.', array('@url' => $url, '!code' => $result->code)));
+      throw new Exception(t('Download of @url failed with code !code. Error details: !details', array('@url' => $url, '!code' => $result->code, '!details' => $result->data)));
     }
     
     return $result->data;
