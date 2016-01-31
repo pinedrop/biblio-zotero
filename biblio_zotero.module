@@ -132,6 +132,8 @@ function biblio_zotero_feeds_importer_default() {
 * http://drupalcontrib.org/api/drupal/contributions%21feeds%21feeds.api.php/function/hook_feeds_processor_targets_alter/7
 **/
 function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+  if ($bundle_name != 'biblio')
+    return;
    foreach ($targets as $key => $target) {
       if (   strpos( $key, 'biblio_') !== FALSE && ! in_array($key, array('url','guid', 'biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
          $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';  
