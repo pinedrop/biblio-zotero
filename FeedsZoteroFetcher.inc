@@ -283,7 +283,7 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
     $child_pages = array();
     $pages = $result->getItemPages();
     foreach ($result->getItemPages() as $page) { 
-      $item_keys = $result->getEntryKeys($page, array('attachment'));
+      $item_keys = $result->getEntryKeys($page, array('attachment', 'note'));
       foreach ($item_keys as $item_key) {
         $result->addChildPages($item_key, $this->getItemChildren($item_key));
       }
