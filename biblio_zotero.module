@@ -76,12 +76,12 @@ function biblio_zotero_feeds_plugins() {
          'path' => drupal_get_path('module', 'biblio_zotero'),
          ),
       );
-   return $info; 
+   return $info;
 }
 
 /**
 * Default definition of 'biblio_zotero_importer'
-*/ 
+*/
 function biblio_zotero_feeds_importer_default() {
    $export = array();
    $feeds_importer = new stdClass;
@@ -122,8 +122,8 @@ function biblio_zotero_feeds_importer_default() {
       'expire_period' => 3600,
       'import_on_create' => 1,
       );
-   
-   $export['biblio_zotero_importer'] = $feeds_importer; 
+
+   $export['biblio_zotero_importer'] = $feeds_importer;
    return $export;
 }
 
@@ -136,7 +136,7 @@ function biblio_zotero_feeds_processor_targets_alter(&$targets, $entity_type, $b
     return;
    foreach ($targets as $key => $target) {
       if (   strpos( $key, 'biblio_') !== FALSE && ! in_array($key, array('url','guid', 'biblio_type', 'biblio_contributor', 'biblio_keyword') ) ) {
-         $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';  
+         $targets[$key]['callback'] = 'biblio_zotero_feeds_set__simple_target';
       }
    }
    $targets['biblio_contributor']['name'] = t('Biblio - Contributor (primary author)'); //remove the singular added by biblio.feeds.inc to avoid confusion
@@ -168,7 +168,7 @@ function biblio_zotero_get_default_mappings() {
       biblio_zotero_remove_empty_targets($item_type_mappings);
       $all_mappings = array_merge($all_mappings, $item_type_mappings);
    }
-   $other_mappings = array( 
+   $other_mappings = array(
       array(
          'source' => 'guid',
          'target' => 'guid',
@@ -217,14 +217,14 @@ function biblio_zotero_get_default_mappings() {
       'unique' => FALSE,
       ), */
       );
-   $all_mappings = array_merge($other_mappings, $all_mappings);      
+   $all_mappings = array_merge($other_mappings, $all_mappings);
    return $all_mappings;
 }
 
 function biblio_zotero_remove_empty_targets(&$mappings) {
    foreach ($mappings as $idx => $mapping) {
       if ( empty( $mapping['target']) ) {
-         unset($mappings[$idx]); 
+         unset($mappings[$idx]);
       }
    }
 }
@@ -261,11 +261,11 @@ function biblio_zotero_feeds_set__simple_target($source, $entity, $target, $valu
 * @TODO in a separate module, add custom contributor types to the biblio author types table and configure them here.
 * Biblio default author categories and types
 * CATEGORIES
-*  1	Author	
-*  2	Secondary Author	
-*  3	Tertiary Author	
-*  4	Subsidiary Author	
-*  5	Corporate Author	
+*  1	Author
+*  2	Secondary Author
+*  3	Tertiary Author
+*  4	Subsidiary Author
+*  5	Corporate Author
 * TYPES
 *  10	Series Editor
 *  11	Performers
@@ -283,7 +283,7 @@ function biblio_zotero_feeds_set__simple_target($source, $entity, $target, $valu
 */
 function getBiblioAuthorTypeFromZoteroCreatorType( $creatorType ) {
    $zotCreator2BibAuthType = array(
-      'editor' => array('desc' => 'Editor', 'auth_category' => 14, 'auth_type' => 14), 
+      'editor' => array('desc' => 'Editor', 'auth_category' => 14, 'auth_type' => 14),
       'seriesEditor' => array('desc' => 'Series Editor', 'auth_category' => 10, 'auth_type' => 10),
       'translator' => array('desc' => 'Translator', 'auth_category' => 13, 'auth_type' => 13),
       'counsel' => array('desc' => 'Counsel', 'auth_category' => 15, 'auth_type' => 15),
@@ -322,7 +322,7 @@ function biblio_zotero_get_collection_term($collection_key) {
     return $terms[$collection_key];
   }
   else {
-    $result = db_query('SELECT tid FROM {biblio_zotero_collections} WHERE collection_key = :key', array(':key' => $collection_key));  
+    $result = db_query('SELECT tid FROM {biblio_zotero_collections} WHERE collection_key = :key', array(':key' => $collection_key));
     $term = taxonomy_term_load($result->fetchField());
     $terms[$collection_key] = $term;
     return $term;
@@ -336,18 +336,18 @@ function biblio_zotero_create_collection_term($vid, $name, $collection_key, $par
   $term->vid = $vid;
   $term->name = $name;
   $term->key = $collection_key;
-  $term->parentterm = $parent_collection_key; 
+  $term->parentterm = $parent_collection_key;
   if ($parent_collection_key) {
     $term->parent = biblio_zotero_get_collection_term($parent_collection_key)->tid;
   }
   taxonomy_term_save($term);
-  db_query('INSERT INTO {biblio_zotero_collections} VALUES (:tid, :key)', array(':tid' => $term->tid, ':key' => $collection_key));  
+  db_query('INSERT INTO {biblio_zotero_collections} VALUES (:tid, :key)', array(':tid' => $term->tid, ':key' => $collection_key));
 }
 /**
  * Implements hook_taxonomy_term_delete().
  */
 function biblio_zotero_taxonomy_term_delete($term) {
-  db_query('DELETE FROM {biblio_zotero_collections} WHERE tid = :tid', array(':tid' => $term->tid));  
+  db_query('DELETE FROM {biblio_zotero_collections} WHERE tid = :tid', array(':tid' => $term->tid));
 }
 
 
