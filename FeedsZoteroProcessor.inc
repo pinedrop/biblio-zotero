@@ -45,9 +45,9 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		$form = parent::configForm($form_state);
 		$c = $this->getConfig();
 		
-		// get tags vocabs for content type
+		// Get vocabularies for this content type.
 		$content_type = !empty($this->config['content_type']) ? $this->config['content_type'] : $this->config['bundle'];
-		$fields=field_info_instances("node",$content_type);
+		$fields = field_info_instances("node", $content_type);
 		$taxo_field_options = array();
 		$taxo_field_options[''] = t(' - Select -');
 		foreach ($fields as $field_machine_name => $field) {
