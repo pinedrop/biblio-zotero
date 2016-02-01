@@ -46,15 +46,13 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		$c = $this->getConfig();
 		
 		// Get vocabularies for this content type.
-		$content_type = !empty($this->config['content_type']) ? $this->config['content_type'] : $this->config['bundle'];
-		$fields = field_info_instances("node", $content_type);
-		$taxo_field_options = array();
-		$taxo_field_options[''] = t(' - Select -');
-		foreach ($fields as $field_machine_name => $field) {
-			$taxo_field_options[$field_machine_name] = $field['label'];
-		}
+		$content_type = !empty($this->config['bundle']) ? $this->config['bundle'] : 'biblio';
+
+    $taxonomy_fields = biblio_zotero_fields_by_type_by_bundle('node', $content_type, 'taxonomy_term_reference');
+		$taxo_field_options = array(t(' - Select -'));
+    $taxo_field_options += $taxonomy_fields;
 		
-		if ( ! empty( $taxo_field_options)) {
+		if ( ! empty( $taxonomy_fields)) {
 			$form['sync_tags'] = array(
 				'#type' => 'radios',
 				'#title' => t('Sync zotero tags to a term reference field in the biblio content type?'),
@@ -714,4 +712,21 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 		return $z2b;
 	}
 
+}
+
+/**
+ * Helper function to return all fields of one type on one bundle.
+ */
+function biblio_zotero_fields_by_type_by_bundle($entity_type, $bundle, $type) {
+	$taxonomy_fields = array();
+  $fields = field_info_field_map();
+  foreach ($fields as $field => $info) {
+    if ($info['type'] == $type &&
+        in_array($entity_type, array_keys($info['bundles'])) &&
+        in_array($bundle, $info['bundles'][$entity_type]))
+    {
+      $taxonomy_fields[$field] = $field;
+    }
+  }
+  return $taxonomy_fields;
 }
