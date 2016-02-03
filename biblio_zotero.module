@@ -106,7 +106,7 @@ function biblio_zotero_feeds_importer_default() {
     'processor' => array(
       'plugin_key' => 'FeedsZoteroProcessor',
       'config' => array(
-        'content_type' => 'biblio',
+        'bundle' => 'biblio',
         'update_existing' => 0,
         'expire' => '-1',
         'mappings' => biblio_zotero_get_default_mappings(),
