@@ -327,6 +327,11 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
       ),
         ) + parent::getMappingTargets();
 
+    // Allow other modules to modify targets.
+    if (method_exists($this, 'getHookTargets')) {
+      $this->getHookTargets($targets);
+    }
+
     return $targets;
   }
 
