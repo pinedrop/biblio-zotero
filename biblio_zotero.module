@@ -178,7 +178,7 @@ function biblio_zotero_get_default_mappings() {
     array(
       'source' => 'url',
       'target' => 'url',
-      'unique' => TRUE,
+      'unique' => FALSE,
     ),
     array(
       'source' => 'title',
