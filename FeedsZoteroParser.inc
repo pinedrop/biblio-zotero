@@ -126,9 +126,9 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
             break;
           case 'attachment':
             if ($child->url) {
-              $item['links'][] = mysql_real_escape_string($child->url);
+              $item['links'][] = $child->url;
             } elseif ($child->filename) {
-              $item['files'][] = mysql_real_escape_string($child->filename);
+              $item['files'][] = $child->filename;
             }
             break;
 
