@@ -442,8 +442,8 @@ class FeedsZoteroFetcher extends FeedsHTTPFetcher {
         $next_href = (string) $next[0]['href'];
         $pattern = "/start=\d+/";
         preg_match($pattern, $next_href, $matches);
-        $first_match = $matches[0];
-        $next_index = array_pop(explode("=", $first_match));
+        $first_match_parts = explode("=", $matches[0]);
+        $next_index = array_pop($first_match_parts);
         return $next_index;
       } else {
         return FALSE;
