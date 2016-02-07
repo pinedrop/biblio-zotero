@@ -66,7 +66,7 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           $data = json_decode($json);
           $item = array_merge($item, (array) $data);
 
-          //Item may have been processed in another collection, copy collection keys from result if they exist
+          // Item may have been processed in another collection, copy collection keys from result if they exist
           $item['collection_keys'] = isset($result->items[$item_key]) ? $result->items[$item_key]['collection_keys'] : array();
 
           if ($collection_key) {
@@ -91,7 +91,7 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           self::addItemTypePrefixes($item);
           $this->addZoteroChildren($item, $fetcher_result->getChildPages($item_key));
 
-          $result->items[(string) $zapi->key] = $item;
+          $result->items[$item_key] = $item;
         }
       }
     }
