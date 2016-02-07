@@ -76,6 +76,9 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           $item['key'] = $item_key;
           $item['guid'] = $item_key;
 
+          $item['entry_author_name'] = (string) $entry->author->name;
+          $item['entry_author_name'] = (string) $entry->author->uri;
+          // $item['zotero_fetch_url'] = (string) $entry->link[0]->@attributes['href'];
           $item['url'] = (string) $entry->id;
           $item['published'] = (string) $entry->published;
           $item['updated'] = (string) $entry->updated;
@@ -83,6 +86,7 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           $item['title'] = (string) $entry->title;
           $item['long_title'] = (string) $entry->title;
 
+          $item['entry_last_modified_by'] = (string) $zapi->lastModifiedByUser;
           $item['itemType'] = (string) $zapi->itemType;
           $item['creatorSummary'] = (string) $zapi->creatorSummary;
           $item['year'] = (string) $zapi->year;
