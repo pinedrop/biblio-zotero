@@ -553,8 +553,10 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
           ->entityCondition('entity_type', 'user')
           ->fieldCondition($this->config['zotero_username_field_name'], "value", $zot_user_name, '=', 0);
       $users = $query->execute();
-      $author = array_shift($users['user']);
-      $author_uid = $author->uid;
+      if ($users) {
+        $author = array_shift($users['user']);
+        $author_uid = $author->uid;
+      }
     }
 
     // if there was no corresponding zotero user found among the drupal users, use the feed owner if config says to do so.
