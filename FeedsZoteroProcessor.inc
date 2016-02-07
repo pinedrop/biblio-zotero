@@ -464,7 +464,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
     $itemType = $parser->getSourceElement($source, $result, 'itemType');
     $target_item->biblio_type = BiblioZotero::getZoteroTypeToBiblioType($itemType);
 
-    if ($itemType == 'note') {
+    if ($itemType == 'note' || $itemType == 'attachment') {
       $target_item->feeds_item->skip = TRUE; // skip saving for notes since they will be brought in as children of their parent item: see FeedsProcessor::process
       return;
     }
