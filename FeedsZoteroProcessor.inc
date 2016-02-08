@@ -546,7 +546,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 
     // try to set the author from the zotero username field
     $author_uid = null;
-    $zot_user_name = 'travismccauley';
+    $zot_user_name = $parser->getSourceElement($source, $result, 'entry_author_name');
     if (!empty($this->config['zotero_username_field_name'])) {
       $query = new EntityFieldQuery;
       $query
