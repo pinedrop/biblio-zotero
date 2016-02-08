@@ -361,7 +361,7 @@ class FeedsZoteroProcessor extends FeedsNodeProcessor {
 
     $this->cleanUpCollectionTerms($parser_result->collections);
 
-    if (isset($this->config['tags_vocab']) and ! empty($this->config['tags_vocab'])) {
+    if (isset($this->config['tags_vocab']) and !empty($this->config['tags_vocab'])) {
       $this->cleanUpZoteroTags();
     }
 
