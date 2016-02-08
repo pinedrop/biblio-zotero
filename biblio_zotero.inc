@@ -163,14 +163,14 @@ class BiblioZotero {
    return $type_creators;
    }
    */   
-   private function _getAllItemTypes() {
+   private static function _getAllItemTypes() {
       $url = "https://api.zotero.org/itemTypes";
       $json = file_get_contents($url);
       $data = json_decode($json);
       return $data;
    }
    
-   private function _getItemTypeFields($item_type) {
+   private static function _getItemTypeFields($item_type) {
       $url = "https://api.zotero.org/itemTypeFields?itemType=$item_type->itemType";
       $json = file_get_contents($url);
       $data = json_decode($json);
@@ -181,7 +181,7 @@ class BiblioZotero {
       return $data;
    }
    
-   private function _getItemTypeCreators($item_type) {
+   private static function _getItemTypeCreators($item_type) {
       $url = "https://api.zotero.org/itemTypeCreatorTypes?itemType=$item_type->itemType";
       $json = file_get_contents($url);
       $data = json_decode($json);
