@@ -61,10 +61,25 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           $zapi = $entry->children($namespaces['zapi']);
           $item_key = (string) $zapi->key;
           $item_type = (string) $zapi->itemType;
-          $item = array();
           $json = (string) $entry->content;
           $data = json_decode($json);
+
+          $item = array();
+          // The immediately following item
           $item = array_merge($item, (array) $data);
+          $item['description'] = ''; //description gets mapped to Full Text of the biblio node so leave it blank
+          $item['title'] = (string) $entry->title;
+          $item['creatorSummary'] = (string) $zapi->creatorSummary;
+          $item['year'] = (string) $zapi->year;
+          self::addItemTypePrefixes($item);
+
+          // Keys added below here will not recieve the item type prefix.
+          // $no_rename = array('itemType', 'guid', 'tags', 'creators', 'collection_keys', 'files', 'links', 'long_title');
+
+          $this->addZoteroChildren($item, $fetcher_result->getChildPages($item_key));
+
+          $item['itemType'] = (string) $zapi->itemType;
+          $item['long_title'] = (string) $entry->title;
 
           // Item may have been processed in another collection, copy collection keys from result if they exist
           $item['collection_keys'] = isset($result->items[$item_key]) ? $result->items[$item_key]['collection_keys'] : array();
@@ -77,23 +92,14 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
           $item['guid'] = $item_key;
 
           $item['entry_author_name'] = (string) $entry->author->name;
-          $item['entry_author_name'] = (string) $entry->author->uri;
+          $item['entry_author_uri'] = (string) $entry->author->uri;
+          $item['entry_last_modified_by'] = (string) $zapi->lastModifiedByUser;
           // $item['zotero_fetch_url'] = (string) $entry->link[0]->@attributes['href'];
           $item['url'] = (string) $entry->id;
           $item['published'] = (string) $entry->published;
           $item['updated'] = (string) $entry->updated;
-          $item['description'] = ''; //description gets mapped to Full Text of the biblio node so leave it blank
-          $item['title'] = (string) $entry->title;
-          $item['long_title'] = (string) $entry->title;
-
-          $item['entry_last_modified_by'] = (string) $zapi->lastModifiedByUser;
-          $item['itemType'] = (string) $zapi->itemType;
-          $item['creatorSummary'] = (string) $zapi->creatorSummary;
-          $item['year'] = (string) $zapi->year;
           $item['numChildren'] = (string) $zapi->numChildren;
           $item['numTags'] = (string) $zapi->numTags;
-          self::addItemTypePrefixes($item);
-          $this->addZoteroChildren($item, $fetcher_result->getChildPages($item_key));
 
           $result->items[$item_key] = $item;
         }
@@ -181,17 +187,13 @@ class FeedsZoteroParser extends FeedsSyndicationParser {
   }
 
   /**
-   * Create unique mapping sources for the different zotero types
-   * since they sometimes map to different biblio fields depending on publication type
+   * Create unique mapping sources for the different zotero types since they
+   * sometimes map to different biblio fields depending on publication type.
    */
   function addItemTypePrefixes(&$item) {
-    $no_rename = array('itemType', 'guid', 'tags', 'creators', 'collection_keys', 'files', 'links', 'long_title');
     $item = (array) $item;
     $old_keys = array_keys($item);
     foreach ($old_keys as $old_key) {
-      if (in_array($old_key, $no_rename)) {
-        continue;
-      }
       if ($item['itemType']) {
         $new_key = $item['itemType'] . ":" . $old_key;
         $item[$new_key] = $item[$old_key];
